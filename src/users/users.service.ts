@@ -1,5 +1,5 @@
 // src/users/users.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -54,5 +54,27 @@ export class UsersService {
 
   async remove(id: number): Promise<void> {
     await this.repo.delete(id);
+  }
+    async setResetToken(email: string, token: string, expiresMs: number): Promise<void> {
+    const user = await this.repo.findOneBy({ email });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    user.resetToken = token;
+    user.resetTokenExpires = Date.now() + expiresMs;
+    await this.repo.save(user);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.repo.findOne({ where: { resetToken: token } });
+    if (
+      !user ||
+      !user.resetTokenExpires ||
+      Date.now() > user.resetTokenExpires
+    ) {
+      throw new BadRequestException('Token inválido o expirado');
+    }
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetToken = undefined;
+    user.resetTokenExpires = undefined;
+    await this.repo.save(user);
   }
 }

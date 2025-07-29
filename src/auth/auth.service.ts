@@ -5,17 +5,21 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly emailService: EmailService, 
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto) {
-    // delegates hashing & creation to UsersService
-    return this.usersService.create(dto);
+async register(dto: RegisterDto) {
+    const user = await this.usersService.create(dto);
+    await this.emailService.sendWelcomeEmail(user.email, user.firstName);
+    const { passwordHash, ...rest } = user;
+    return rest;
   }
 
   async validateUser(email: string, pass: string) {
