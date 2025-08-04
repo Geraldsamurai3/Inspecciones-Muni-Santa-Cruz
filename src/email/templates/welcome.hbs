@@ -1,10 +1,121 @@
-<!-- src/email/templates/welcome.hbs -->
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bienvenido al sistema de inspecciones</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f0f4fa;
+        font-family: system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+        -webkit-text-size-adjust: 100%;
+        color: #1f2d3d;
+      }
+      a {
+        color: #4f46e5;
+        text-decoration: none;
+      }
+      .preheader {
+        display: none !important;
+        visibility: hidden;
+        opacity: 0;
+        color: transparent;
+        height: 0;
+        width: 0;
+        font-size: 1px;
+        line-height: 1px;
+        max-height: 0;
+        max-width: 0;
+        overflow: hidden;
+      }
+      .button {
+        display: inline-block;
+        padding: 14px 24px;
+        background-color: #4f46e5;
+        color: #ffffff !important;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .small {
+        font-size: 12px;
+        color: #6b7280;
+      }
+    </style>
+  </head>
   <body>
-    <p>Hola {{firstName}},</p>
-    <p>¡Bienvenido al sistema de inspecciones de la Municipalidad de Santa Cruz!</p>
-    <p>Con tu cuenta podrás crear y gestionar formularios de inspección.</p>
-    <p>Saludos,<br/>Equipo de Inspecciones</p>
+    <div class="preheader">
+      Tu cuenta está lista. Empieza a gestionar inspecciones en la Municipalidad de Santa Cruz.
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" bgcolor="#f0f4fa">
+      <tr>
+        <td align="center" style="padding: 32px 16px;">
+          <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;">
+            <!-- Logo -->
+            <tr>
+              <td align="center" style="padding-bottom:16px;">
+                <img src="https://res.cloudinary.com/da84etlav/image/upload/v1753883605/ChatGPT_Image_30_jul_2025_07_53_06_a.m._w1pd0i.png"
+                     alt="Municipalidad de Santa Cruz"
+                     width="120"
+                     style="display:block; border:none;" />
+              </td>
+            </tr>
+
+            <!-- Card -->
+            <tr>
+              <td>
+                <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+                       style="background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; box-shadow:0 20px 40px rgba(31,45,61,0.08); overflow:hidden;">
+                  <!-- accent bar -->
+                  <tr>
+                    <td style="background: linear-gradient(90deg,#6366f1,#8b5cf6); height:6px; font-size:0; line-height:0;">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:32px;">
+                      <h1 style="margin:0 0 12px; font-size:24px;">¡Bienvenido!</h1>
+                      <p style="margin:0 0 12px;">
+                        Hola {{#if firstName}}{{firstName}}{{else}}Inspector{{/if}}{{#if lastName}} {{lastName}}{{/if}},
+                      </p>
+                      <p style="margin:0 0 16px;">
+                        Tu cuenta en el sistema de inspecciones de la Municipalidad de Santa Cruz ya está activa. Con ella podrás crear, enviar y dar seguimiento a las inspecciones asignadas.
+                      </p>
+
+                      <div style="text-align:center; margin:28px 0;">
+                        <a href="{{loginLink}}" class="button" target="_blank" rel="noopener">Ir al panel</a>
+                      </div>
+
+                      <p style="margin:0 0 8px;">
+                        Puedes iniciar sesión con tu correo electrónico. Si no solicitaste esta cuenta o tienes algún problema, responde este correo.
+                      </p>
+
+                      <p class="small" style="margin:16px 0 0;">
+                        Gracias por colaborar con el control y la transparencia en el departamento de inspecciones.
+                      </p>
+
+                      <hr style="border:none;border-top:1px solid #e6eaf2; margin:24px 0;" />
+
+                      <p class="small" style="margin:0;">
+                        Municipalidad de Santa Cruz – Departamento de Inspecciones
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="padding-top:24px;">
+                <p class="small" style="margin:0;">© {{year}} Municipalidad de Santa Cruz. Todos los derechos reservados.</p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

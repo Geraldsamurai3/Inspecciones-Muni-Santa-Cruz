@@ -62,23 +62,46 @@ export class EmailService {
     }
   }
 
-  async sendResetPasswordEmail(to: string, token: string) {
-    try {
-      const from = this.config.get<string>('EMAIL_FROM');
-      const frontend = this.config.get<string>('FRONTEND_URL');
-      const resetLink = `${frontend}/reset-password?token=${token}`;
-      const info = await this.transporter.sendMail({
-        from,
-        to,
-        subject: 'Restablece tu contraseña',
-        template: 'reset-password',
-        context: { resetLink },
-      });
-      return { messageId: info.messageId };
-    } catch (err) {
-      throw new InternalServerErrorException(
-        'Error enviando email de restablecimiento: ' + err.message,
-      );
-    }
+async sendResetPasswordEmail(
+  to: string,
+  token: string,
+  firstName?: string,
+  lastName?: string,
+) {
+  try {
+    const from = this.config.get<string>('EMAIL_FROM');
+    if (!from) throw new InternalServerErrorException('EMAIL_FROM no está configurado');
+
+    const frontendRaw = this.config.get<string>('FRONTEND_URL');
+    if (!frontendRaw) throw new InternalServerErrorException('FRONTEND_URL no está configurado');
+
+    const frontend = frontendRaw.replace(/\/$/, '');
+    const url = new URL('/admin/reset-password', frontend);
+    url.searchParams.set('token', token);
+    const resetLink = url.toString();
+
+    console.log('[DEBUG] Enviando link de reset:', resetLink, 'firstName=', firstName, 'lastName=', lastName);
+
+    const info = await this.transporter.sendMail({
+      from,
+      to,
+      subject: 'Restablece tu contraseña',
+      template: 'reset-password',
+      context: {
+        resetLink,
+        expiresIn: '20 minutos',
+        firstName: firstName ?? '',
+        lastName: lastName ?? '',
+        year: new Date().getFullYear(),
+      },
+    });
+    return { messageId: info.messageId };
+  } catch (err: any) {
+    throw new InternalServerErrorException(
+      'Error enviando email de restablecimiento: ' + err.message,
+    );
   }
+}
+
+
 }
