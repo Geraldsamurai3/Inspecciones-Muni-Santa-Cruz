@@ -14,7 +14,6 @@ async function ensureDatabaseExists() {
     port:     Number(process.env.DB_PORT),
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    // Sin database para conectar al servidor principal
   });
   await tmpDs.initialize();
 
@@ -27,14 +26,9 @@ async function ensureDatabaseExists() {
 }
 
 async function bootstrap() {
-  // 1) Crear DB si no existe
   await ensureDatabaseExists();
 
-  // 2) Iniciar NestJS
   const app = await NestFactory.create(AppModule);
-
-  // 3) Prefijo y validación global de DTOs
-  //app.setGlobalPrefix('api');
   
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -42,7 +36,6 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // 4) CORS
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
@@ -50,7 +43,6 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type','Authorization'],
   });
 
-  // 5) Levantar servidor
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;
   await app.listen(port);
   console.log(`🚀 Servidor corriendo en http://localhost:${port}/`);

@@ -1,5 +1,5 @@
 // src/users/dto/create-user.dto.ts
-import { IsEmail, IsNotEmpty, MinLength, IsOptional, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -26,6 +26,12 @@ export class CreateUserDto {
   @Length(0, 20)
   @IsOptional()
   phone?: string;
+
+ @IsString()
+  @Matches(/^\d{7,20}$/, {
+    message: 'Cédula debe tener entre 7 y 20 dígitos',
+  })
+  cedula: string
 
   @IsString()
   @IsOptional()
