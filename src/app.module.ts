@@ -3,18 +3,16 @@ import { Module }                   from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule }            from '@nestjs/typeorm';
 import { EventEmitterModule }       from '@nestjs/event-emitter';
-
 import { AppController }            from './app.controller';
 import { AppService }               from './app.service';
-
 import { AuthModule }               from './auth/auth.module';
 import { UsersModule }              from './users/users.module';
-import { InspectionsModule }        from './inspections/inspections.module';
 import { CloudinaryModule }         from './cloudinary/cloudinary.module';
 import { EmailModule }              from './email/email.module';
 import { DashboardModule }          from './dashboard/dashboard.module';
+import { InspectionsModule } from './inspections/inspections.module';
 
-@Module({
+@Module({ 
   imports: [
     // Carga global de .env
     ConfigModule.forRoot({ isGlobal: true }),
@@ -46,10 +44,12 @@ import { DashboardModule }          from './dashboard/dashboard.module';
     CloudinaryModule,
     EmailModule,
     DashboardModule,
+   
   ],
   controllers: [AppController],
   providers: [
     AppService,
+   
   ],
 })
 export class AppModule {}

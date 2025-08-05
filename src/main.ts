@@ -34,7 +34,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // 3) Prefijo y validación global de DTOs
-  app.setGlobalPrefix('api');
+  //app.setGlobalPrefix('api');
   
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,

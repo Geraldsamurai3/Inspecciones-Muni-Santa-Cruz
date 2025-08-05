@@ -8,16 +8,16 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
-import { InspectionService } from './inspections.service';
-import { CreateInspectionDto } from './DTO/create-inspection.dto';
-import { UpdateInspectionDto } from './DTO/update-inspection.dto';
+import { TaxProceduresService } from '../Services/tax-procedures.service';
+import { CreateTaxProcedureDto } from '../DTO/create-tax-procedure.dto';
+import { UpdateTaxProcedureDto } from '../DTO/update-tax-procedure.dto';
 
-@Controller('inspections')
-export class InspectionController {
-  constructor(private readonly service: InspectionService) {}
+@Controller('tax-procedures')
+export class TaxProceduresController {
+  constructor(private readonly service: TaxProceduresService) {}
 
   @Post()
-  create(@Body() dto: CreateInspectionDto) {
+  create(@Body() dto: CreateTaxProcedureDto) {
     return this.service.create(dto);
   }
 
@@ -34,7 +34,7 @@ export class InspectionController {
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateInspectionDto,
+    @Body() dto: UpdateTaxProcedureDto,
   ) {
     return this.service.update(id, dto);
   }

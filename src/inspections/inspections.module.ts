@@ -1,9 +1,40 @@
+// src/inspections/inspections.module.ts
 import { Module } from '@nestjs/common';
-import { InspectionsController } from './inspections.controller';
-import { InspectionsService } from './inspections.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { InspectionService } from './inspections.service';
+import { InspectionController } from './inspections.controller';
+import { IndividualRequest } from './Entities/individual-request.entity';
+import { LegalEntityRequest } from './Entities/legalEntityRequest';
+import { Construction } from './Entities/construction.entity';
+import { PcCancellation } from './Entities/pcCancellation.entity';
+import { WorkReceipt } from './Entities/workReceipt.entity';
+import { GeneralInspection } from './Entities/generalInspection.entity';
+import { TaxProcedure } from './Entities/taxProcedure.entity';
+import { MayorOffice } from './Entities/mayor-office.entity';
+import { Antiquity } from './Entities/antiquity.entity';
+import { Location } from './Entities/location.entity';
+import { LandUse } from './Entities/landUse.entity';
+import { Inspection } from './Entities/inspections.entity';
 
 @Module({
-  controllers: [InspectionsController],
-  providers: [InspectionsService]
+  imports: [
+    TypeOrmModule.forFeature([
+      Inspection,
+      IndividualRequest,
+      LegalEntityRequest,
+      Construction,
+      PcCancellation,
+      WorkReceipt,
+      GeneralInspection,
+      TaxProcedure,
+      MayorOffice,
+      Antiquity,
+      Location,
+      LandUse,
+    ])
+  ],
+  controllers: [InspectionController],
+  providers: [InspectionService],
+  exports: [InspectionService]
 })
 export class InspectionsModule {}
