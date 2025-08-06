@@ -1,4 +1,3 @@
-// applicant.entity.ts
 
 export enum ApplicantType {
   ANONYMOUS = 'Anonimo',

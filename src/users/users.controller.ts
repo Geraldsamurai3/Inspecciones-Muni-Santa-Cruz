@@ -36,7 +36,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Req() req: any) {
-    return this.usersService.findOne(req.user.userId);
+    // req.user ya es el user “safe” que devolvió JwtStrategy.validate()
+    return req.user
   }
 
   @Get(':id') 

@@ -44,7 +44,10 @@ export class EmailService {
     );
   }
 
-  async sendWelcomeEmail(to: string, firstName: string) {
+  async sendWelcomeEmail(
+    to: string, 
+    firstName: string,
+    lastName?: string) {
     try {
       const from = this.config.get<string>('EMAIL_FROM');
       const info = await this.transporter.sendMail({
@@ -52,7 +55,11 @@ export class EmailService {
         to,
         subject: '¡Bienvenido a Inspecciones Santa Cruz!',
         template: 'welcome',
-        context: { firstName },
+        context: {
+       firstName: firstName ?? '',
+        lastName: lastName ?? '',
+        year: new Date().getFullYear(),
+         },
       });
       return { messageId: info.messageId };
     } catch (err) {
