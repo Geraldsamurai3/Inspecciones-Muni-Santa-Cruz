@@ -2,7 +2,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService }                            from '@nestjs/config';
 import * as nodemailer                               from 'nodemailer';
- import * as hbs from 'nodemailer-handlebars'; // 
+import * as hbs from 'nodemailer-handlebars'; 
 import { join }                                     from 'path';
 
 @Injectable()
@@ -82,8 +82,6 @@ async sendResetPasswordEmail(
     const url = new URL('/admin/reset-password', frontend);
     url.searchParams.set('token', token);
     const resetLink = url.toString();
-
-    console.log('[DEBUG] Enviando link de reset:', resetLink, 'firstName=', firstName, 'lastName=', lastName);
 
     const info = await this.transporter.sendMail({
       from,

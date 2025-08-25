@@ -68,21 +68,40 @@ export class UsersController {
 @Public()
 @Post('forgot-password')
 async forgotPassword(@Body('email') email: string) {
-  if (!email) throw new BadRequestException('Email es requerido');
-
-  const user = await this.usersService.findByEmail(email);
-  if (!user) {
-    return { message: 'Email de restablecimiento enviado' };
+  if (!email) {
+    throw new BadRequestException('Email es requerido');
   }
 
-  const rawToken = await this.usersService.generateResetToken(email);
-  await this.emailService.sendResetPasswordEmail(
-    email,
-    rawToken,
-    user.firstName,
-    user.lastName,
-  );
-  return { message: 'Email de restablecimiento enviado' };
+  // Validar formato de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new BadRequestException('Formato de email inválido');
+  }
+
+  // Verificar si el usuario existe
+  const user = await this.usersService.findByEmail(email);
+  if (!user) {
+    throw new BadRequestException('El email no está registrado en el sistema');
+  }
+
+  // Verificar que el usuario no esté bloqueado
+  if (user.isBlocked) {
+    throw new BadRequestException('La cuenta está bloqueada. Contacta al administrador.');
+  }
+
+  try {
+    const rawToken = await this.usersService.generateResetToken(email);
+    await this.emailService.sendResetPasswordEmail(
+      email,
+      rawToken,
+      user.firstName,
+      user.lastName,
+    );
+    return { message: 'Email de restablecimiento enviado' };
+  } catch (error) {
+    console.error('Error sending reset email:', error);
+    throw new BadRequestException('Error al enviar el email. Inténtalo más tarde.');
+  }
 }
 
 
