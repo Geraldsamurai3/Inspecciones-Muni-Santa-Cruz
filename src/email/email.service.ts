@@ -55,19 +55,9 @@ export class EmailService {
         to,
         subject: '¡Bienvenido a Inspecciones Santa Cruz!',
         template: 'welcome',
-<<<<<<< HEAD
-        context: {
-       firstName: firstName ?? '',
-        lastName: lastName ?? '',
-        year: new Date().getFullYear(),
-         },
-      });
-      return { messageId: info.messageId };
-=======
         context: { firstName },
       }as any, );
       return { messageId: (info as any).messageId };
->>>>>>> Alejo
     } catch (err) {
       throw new InternalServerErrorException(
         'Error enviando email de bienvenida: ' + err.message,
