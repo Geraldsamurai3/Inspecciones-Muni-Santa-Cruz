@@ -7,10 +7,10 @@ import {
   IsString,
   IsArray,
   ValidateNested,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { Inspector } from '../Enums/inspector.enum';
 import { ApplicantType } from '../Enums/applicant.enum';
 
 import { CreateIndividualRequestDto } from './create-individual-request.dto';
@@ -37,8 +37,11 @@ export class CreateInspectionDto {
   procedureNumber: string;
 
   @IsArray()
-  @IsEnum(Inspector, { each: true })
-  performedBy: Inspector[];
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  inspectorIds?: number[];
+
+  
 
   @IsEnum(ApplicantType)
   applicantType: ApplicantType;

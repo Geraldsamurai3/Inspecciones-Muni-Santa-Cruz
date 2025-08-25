@@ -5,16 +5,34 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inspection } from './Entities/inspections.entity';
+import { In } from 'typeorm';
 
 import { UpdateInspectionDto } from './DTO/update-inspection.dto';
 import { CreateInspectionDto } from './DTO/create-inspection.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class InspectionService {
   constructor(
     @InjectRepository(Inspection)
     private readonly inspectionRepo: Repository<Inspection>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
+
+
+   private async resolveInspectors(ids?: number[]): Promise<User[]> {
+    if (!ids || ids.length === 0) return [];
+    const users = await this.userRepo.findBy({ id: In(ids) });
+
+    // (Opcional) Si quieres ser estricto con IDs inválidos, descomenta:
+    // if (users.length !== ids.length) {
+    //   throw new BadRequestException('Algunos inspectorIds no existen');
+    // }
+
+    return users;
+  }
+
 
   async create(dto: CreateInspectionDto): Promise<Inspection> {
     const inspection = this.inspectionRepo.create(dto);
@@ -37,6 +55,7 @@ export class InspectionService {
         'landUse',
         'concession',
         'concession.parcels',
+        'inspectors',
       ],
     });
   }
@@ -58,6 +77,7 @@ export class InspectionService {
         'landUse',
         'concession',
         'concession.parcels',
+        'inspectors',
       ],
     });
 
