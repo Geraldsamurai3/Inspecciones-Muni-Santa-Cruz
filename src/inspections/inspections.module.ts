@@ -15,6 +15,8 @@ import { Antiquity } from './Entities/antiquity.entity';
 import { Location } from './Entities/location.entity';
 import { LandUse } from './Entities/landUse.entity';
 import { Inspection } from './Entities/inspections.entity';
+import { Concession } from './Entities/zmt.consession.enity';
+import { ConcessionParcel } from './Entities/zmt.consession.parcels.entity';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { Inspection } from './Entities/inspections.entity';
       Antiquity,
       Location,
       LandUse,
+      Concession,
+      ConcessionParcel,
     ])
   ],
   controllers: [InspectionController],

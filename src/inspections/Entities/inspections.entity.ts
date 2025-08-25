@@ -19,6 +19,7 @@ import { MayorOffice } from './mayor-office.entity';
 import { Antiquity } from './antiquity.entity';
 import { LandUse } from './landUse.entity';
 import { Location } from './location.entity';
+import { Concession } from './zmt.consession.enity';
 @Entity('inspections')
 export class Inspection {
   @PrimaryGeneratedColumn()
@@ -79,4 +80,12 @@ export class Inspection {
   @OneToOne(() => LandUse, { cascade: true })
   @JoinColumn()
   landUse: LandUse;
+
+  @OneToOne(() => Concession, concession => concession.inspection, {
+    cascade: true,
+    nullable: true,
+  })
+  @JoinColumn()                          // <-- aquí
+  concession?: Concession;
 }
+
