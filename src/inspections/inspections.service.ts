@@ -35,6 +35,8 @@ export class InspectionService {
         'antiquity',
         'location',
         'landUse',
+        'concession',
+        'concession.parcels',
       ],
     });
   }
@@ -54,6 +56,8 @@ export class InspectionService {
         'antiquity',
         'location',
         'landUse',
+        'concession',
+        'concession.parcels',
       ],
     });
 

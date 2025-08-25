@@ -25,6 +25,8 @@ import { CreateAntiquityDto } from './create-antiquity.dto';
 import { CreateLandUseDto } from './create-land-use.dto';
 import { CreateWorkReceiptDto } from './create-work-receipts.dto';
 import { CreateLocationDto } from './create-location.dto';
+import { CreateConcessionDto } from './create-concession.dto';
+import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
 
 export class CreateInspectionDto {
   @IsDateString()
@@ -77,13 +79,21 @@ export class CreateInspectionDto {
   @Type(() => CreateLandUseDto)
   landUse: CreateLandUseDto;
 
-  @IsOptional()
+  
   @ValidateNested()
   @Type(() => CreateIndividualRequestDto)
-  individualRequest?: CreateIndividualRequestDto;
+  individualRequest: CreateIndividualRequestDto;
 
-  @IsOptional()
+
   @ValidateNested()
   @Type(() => CreateLegalEntityRequestDto)
-  legalEntityRequest?: CreateLegalEntityRequestDto;
+  legalEntityRequest: CreateLegalEntityRequestDto;
+
+  @ValidateNested()
+  @Type(() => CreateConcessionDto)
+  Concession: CreateConcessionDto
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateConcessionParcelDto)
+  ConcessionParcels: CreateConcessionParcelDto[];
 }

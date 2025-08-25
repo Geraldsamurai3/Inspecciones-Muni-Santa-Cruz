@@ -2,7 +2,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService }                            from '@nestjs/config';
 import * as nodemailer                               from 'nodemailer';
-import hbs                                           from 'nodemailer-express-handlebars';
+ import * as hbs from 'nodemailer-handlebars'; // 
 import { join }                                     from 'path';
 
 @Injectable()
@@ -55,6 +55,7 @@ export class EmailService {
         to,
         subject: '¡Bienvenido a Inspecciones Santa Cruz!',
         template: 'welcome',
+<<<<<<< HEAD
         context: {
        firstName: firstName ?? '',
         lastName: lastName ?? '',
@@ -62,6 +63,11 @@ export class EmailService {
          },
       });
       return { messageId: info.messageId };
+=======
+        context: { firstName },
+      }as any, );
+      return { messageId: (info as any).messageId };
+>>>>>>> Alejo
     } catch (err) {
       throw new InternalServerErrorException(
         'Error enviando email de bienvenida: ' + err.message,
@@ -101,8 +107,8 @@ async sendResetPasswordEmail(
         lastName: lastName ?? '',
         year: new Date().getFullYear(),
       },
-    });
-    return { messageId: info.messageId };
+    }as any, );
+    return { messageId: (info as any).messageId };
   } catch (err: any) {
     throw new InternalServerErrorException(
       'Error enviando email de restablecimiento: ' + err.message,
