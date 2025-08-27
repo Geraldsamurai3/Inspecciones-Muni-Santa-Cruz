@@ -13,4 +13,6 @@ export class LandUse {
 
   @Column({ name: 'is_recommended', type: 'boolean' })
   isRecommended: boolean;
-}
+
+  @Column({ name: 'observations', type: 'text', nullable: true })
+  observations: string;}
