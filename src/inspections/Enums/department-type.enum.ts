@@ -6,5 +6,4 @@ export enum DepartmentType {
   TaxesAndLicenses = 'Rentas y Patentes',
   ServicePlatform = 'Plataformas de servicios',
   MaritimeZone = 'ZMT',
-  Others = 'Otras'
 }
