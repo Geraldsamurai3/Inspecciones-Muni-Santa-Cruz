@@ -4,9 +4,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   OneToOne,
-  JoinColumn
+  JoinColumn,
+  ManyToMany,
+  JoinTable
 } from 'typeorm';
-import { Inspector } from '../Enums/inspector.enum';
 import { ApplicantType } from '../Enums/applicant.enum';
 import { IndividualRequest } from './individual-request.entity';
 import { LegalEntityRequest } from './legalEntityRequest';
@@ -20,6 +21,7 @@ import { Antiquity } from './antiquity.entity';
 import { LandUse } from './landUse.entity';
 import { Location } from './location.entity';
 import { Concession } from './zmt.consession.enity';
+import { User } from 'src/users/entities/user.entity';
 @Entity('inspections')
 export class Inspection {
   @PrimaryGeneratedColumn()
@@ -31,9 +33,15 @@ export class Inspection {
   @Column({ name: 'procedure_number', type: 'varchar', length: 100 })
   procedureNumber: string;
 
-  @Column("simple-array", { name: 'performed_by' })
-  performedBy: Inspector[];
+  @ManyToMany(() => User, (user) => user.inspections, { eager: true })
+  @JoinTable({
+    name: 'inspection_users', // nombre de tabla intermedia
+    joinColumn: { name: 'inspection_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  inspectors: User[];
 
+  
   @Column({ type: 'enum', enum: ApplicantType })
   applicantType: ApplicantType;
 
@@ -85,7 +93,7 @@ export class Inspection {
     cascade: true,
     nullable: true,
   })
-  @JoinColumn()                          // <-- aquí
+  @JoinColumn()                          
   concession?: Concession;
 }
 

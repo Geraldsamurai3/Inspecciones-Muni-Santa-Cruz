@@ -1,8 +1,11 @@
+
+import { Inspection } from 'src/inspections/Entities/inspections.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity('user')
@@ -47,4 +50,8 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+   @ManyToMany(() => Inspection, (inspection) => inspection.inspectors)
+  inspections: Inspection[];
+
 }
