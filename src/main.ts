@@ -37,9 +37,9 @@ async function bootstrap() {
   }));
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL,
     credentials: true,
-    methods: ['GET','POST','PUT','PATCH','DELETE'],
+    methods: ['GET','POST','PUT','PATCH','DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type','Authorization'],
   });
 
