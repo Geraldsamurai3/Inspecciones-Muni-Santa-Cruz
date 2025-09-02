@@ -35,7 +35,10 @@ export class InspectionService {
 
 
   async create(dto: CreateInspectionDto): Promise<Inspection> {
-    const inspection = this.inspectionRepo.create(dto);
+    const inspectors = dto.inspectorIds ? await this.resolveInspectors(dto.inspectorIds) : [];
+    const inspectionData = { ...dto };
+    delete inspectionData.inspectorIds;
+    const inspection = this.inspectionRepo.create({ ...inspectionData, inspectors });
     return this.inspectionRepo.save(inspection);
   }
 
@@ -90,6 +93,10 @@ export class InspectionService {
 
   async update(id: number, dto: UpdateInspectionDto): Promise<Inspection> {
     const inspection = await this.findOne(id);
+    if (dto.inspectorIds !== undefined) {
+      inspection.inspectors = await this.resolveInspectors(dto.inspectorIds);
+      delete dto.inspectorIds;
+    }
     Object.assign(inspection, dto);
     return this.inspectionRepo.save(inspection);
   }

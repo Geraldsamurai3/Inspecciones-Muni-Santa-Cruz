@@ -18,6 +18,7 @@ import { Inspection } from './Entities/inspections.entity';
 import { Concession } from './Entities/zmt.consession.enity';
 import { ConcessionParcel } from './Entities/zmt.consession.parcels.entity';
 import { User } from 'src/users/entities/user.entity';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Nueva importación
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { User } from 'src/users/entities/user.entity';
       Concession,
       ConcessionParcel,
       User,
-    ])
+    ]),
+    CloudinaryModule, 
   ],
   controllers: [InspectionController],
   providers: [InspectionService],

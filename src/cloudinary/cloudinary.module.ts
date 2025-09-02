@@ -5,17 +5,16 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
 import { CloudinaryService } from './cloudinary.service';
-import { CloudinaryController } from './cloudinary.controller';
+import { CloudinaryProvider } from './cloudinary.provider';
 
 @Module({
   imports: [
-    ConfigModule,  
+    ConfigModule,
     MulterModule.register({
       storage: memoryStorage(),
     }),
   ],
-  providers: [CloudinaryService],
-  controllers: [CloudinaryController],
+  providers: [CloudinaryProvider, CloudinaryService],
   exports: [CloudinaryService],
 })
 export class CloudinaryModule {}

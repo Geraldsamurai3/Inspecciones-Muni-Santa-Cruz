@@ -10,4 +10,8 @@ export class CreateLandUseDto {
 
   @IsBoolean()
   isRecommended: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  observations: string;
 }
