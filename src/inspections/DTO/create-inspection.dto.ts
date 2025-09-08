@@ -27,6 +27,7 @@ import { CreateWorkReceiptDto } from './create-work-receipts.dto';
 import { CreateLocationDto } from './create-location.dto';
 import { CreateConcessionDto } from './create-concession.dto';
 import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
+import { InspectionStatus } from '../Enums/inspection-status.enum';
 
 export class CreateInspectionDto {
   @IsDateString()
@@ -42,9 +43,16 @@ export class CreateInspectionDto {
   inspectorIds?: number[];
 
   
-
   @IsEnum(ApplicantType)
   applicantType: ApplicantType;
+
+
+//Newly added field for inspection status
+@IsOptional()
+@IsEnum(InspectionStatus)
+status?: InspectionStatus;
+
+
 
   @ValidateNested()
   @Type(() => CreateConstructionDto)
@@ -94,9 +102,9 @@ export class CreateInspectionDto {
 
   @ValidateNested()
   @Type(() => CreateConcessionDto)
-  Concession: CreateConcessionDto
+  concession: CreateConcessionDto
 
   @ValidateNested({ each: true })
   @Type(() => CreateConcessionParcelDto)
-  ConcessionParcels: CreateConcessionParcelDto[];
+  concessionParcels: CreateConcessionParcelDto[];
 }

@@ -1,15 +1,18 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, LessThan, Repository } from 'typeorm';
 import { Inspection } from './Entities/inspections.entity';
 import { In } from 'typeorm';
-
 import { UpdateInspectionDto } from './DTO/update-inspection.dto';
 import { CreateInspectionDto } from './DTO/create-inspection.dto';
 import { User } from 'src/users/entities/user.entity';
+import { InspectionStatus } from './Enums/inspection-status.enum';
+import { Cron, CronExpression } from '@nestjs/schedule';
+
 
 @Injectable()
 export class InspectionService {
@@ -34,11 +37,18 @@ export class InspectionService {
   }
 
 
-  async create(dto: CreateInspectionDto): Promise<Inspection> {
-    const inspection = this.inspectionRepo.create(dto);
-    return this.inspectionRepo.save(inspection);
-  }
+async create(dto: CreateInspectionDto): Promise<Inspection> {
+  // Fuerza el overload correcto (entidad, no array)
+  const inspection = this.inspectionRepo.create(
+    dto as unknown as DeepPartial<Inspection>
+  );
 
+  // Estado inicial SIEMPRE "Nuevo" + sin marca de revisión
+  inspection.status = InspectionStatus.NEW;
+  inspection.reviewedAt = null;
+
+  return this.inspectionRepo.save(inspection);
+}
   async findAll(): Promise<Inspection[]> {
     return this.inspectionRepo.find({
       relations: [
@@ -88,11 +98,51 @@ export class InspectionService {
     return inspection;
   }
 
-  async update(id: number, dto: UpdateInspectionDto): Promise<Inspection> {
-    const inspection = await this.findOne(id);
-    Object.assign(inspection, dto);
-    return this.inspectionRepo.save(inspection);
+ async update(id: number, dto: UpdateInspectionDto): Promise<Inspection> {
+  const inspection = await this.findOne(id);
+
+  // separamos status para tratarlo a mano; el resto se mantiene como hoy
+  const { status, ...rest } = dto as any;
+
+  if (status) {
+    // si intentan archivar manualmente, lo bloqueamos (opcional)
+    if (status === InspectionStatus.ARCHIVED) {
+      throw new BadRequestException(
+        'El estado "Archivado" lo asigna automáticamente el sistema.'
+      );
+    }
+
+    // si pasa a Revisado, sellamos la fecha
+    if (status === InspectionStatus.REVIEWED && !inspection.reviewedAt) {
+      inspection.reviewedAt = new Date();
+    }
+
+    // si sale de Revisado, limpiamos la marca
+    if (inspection.status === InspectionStatus.REVIEWED && status !== InspectionStatus.REVIEWED) {
+      inspection.reviewedAt = null;
+    }
+
+    inspection.status = status;
   }
+
+  // todo lo demás sigue igual que antes
+  Object.assign(inspection, rest);
+
+  return this.inspectionRepo.save(inspection);
+}
+
+@Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'America/Costa_Rica' })
+async archiveReviewedOlderThan7Days() {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+
+  await this.inspectionRepo.update(
+    { status: InspectionStatus.REVIEWED, reviewedAt: LessThan(cutoff) },
+    { status: InspectionStatus.ARCHIVED },
+  );
+}
+
+
 
   async remove(id: number): Promise<void> {
     const inspection = await this.findOne(id);
