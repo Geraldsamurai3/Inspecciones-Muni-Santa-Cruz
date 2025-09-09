@@ -6,9 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToMany,
-  JoinTable,
-  UpdateDateColumn,
-  CreateDateColumn
+  JoinTable
 } from 'typeorm';
 import { ApplicantType } from '../Enums/applicant.enum';
 import { IndividualRequest } from './individual-request.entity';
@@ -24,7 +22,6 @@ import { LandUse } from './landUse.entity';
 import { Location } from './location.entity';
 import { Concession } from './zmt.consession.enity';
 import { User } from 'src/users/entities/user.entity';
-import { InspectionStatus } from '../Enums/inspection-status.enum';
 @Entity('inspections')
 export class Inspection {
   @PrimaryGeneratedColumn()
@@ -44,28 +41,9 @@ export class Inspection {
   })
   inspectors: User[];
 
+  
   @Column({ type: 'enum', enum: ApplicantType })
   applicantType: ApplicantType;
-
-
-// Audit opcional (útil para debugging)
-
-@CreateDateColumn()
-createdAt: Date;
-
-@UpdateDateColumn()
-updatedAt: Date;
-
-// Estado actual de la inspección
-@Column({ type: 'enum', enum: InspectionStatus, default: InspectionStatus.NEW })
-status: InspectionStatus;
-
-// Momento en que pasó a "Revisado". Sirve para el cron.
-@Column({ type: 'timestamp', nullable: true })
-reviewedAt?: Date | null;
-
-
-
 
   @OneToOne(() => IndividualRequest, { cascade: true, nullable: true })
   @JoinColumn()
