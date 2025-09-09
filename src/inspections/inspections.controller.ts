@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { InspectionService } from './inspections.service';
@@ -26,6 +27,7 @@ import { GeneralInspection } from './Entities/generalInspection.entity';
 import { WorkReceipt } from './Entities/workReceipt.entity';
 import { Construction } from './Entities/construction.entity';
 import { Concession } from './Entities/zmt.consession.enity';
+import { UpdateStatusDto } from './DTO/update-status.dto';
 
 @Controller('inspections')
 export class InspectionController {
@@ -60,6 +62,27 @@ export class InspectionController {
   ) {
     return this.service.update(id, dto);
   }
+
+
+// NUEVO: PATCH genérico (parcial). Reusa la misma lógica de service.update
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateInspectionDto,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  // NUEVO: PATCH específico SOLO para estado
+  @Patch(':id/status')
+  patchStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { status }: UpdateStatusDto,
+  ) {
+    // Reutilizamos el mismo update del service para mantener una sola lógica
+    return this.service.update(id, { status } as UpdateInspectionDto);
+  }
+
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {

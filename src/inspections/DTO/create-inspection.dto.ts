@@ -27,6 +27,7 @@ import { CreateWorkReceiptDto } from './create-work-receipts.dto'; // verifica n
 import { CreateLocationDto } from './create-location.dto';
 import { CreateConcessionDto } from './create-concession.dto';
 import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
+import { InspectionStatus } from '../Enums/inspection-status.enum';
 
 /** ===== Helpers locales para transformar ===== */
 function parseDMY(value: any): Date | undefined {
@@ -70,11 +71,22 @@ export class CreateInspectionDto {
   @IsOptional()
   inspectorIds?: number[];
 
-  @Transform(({ value }) => mapApplicantToEnum(value))
+  
   @IsEnum(ApplicantType)
   applicantType: ApplicantType;
 
-  // Ubicación (requerida)
+
+//Newly added field for inspection status
+@IsOptional()
+@IsEnum(InspectionStatus)
+status?: InspectionStatus;
+
+
+
+  @ValidateNested()
+  @Type(() => CreateConstructionDto)
+  construction: CreateConstructionDto;
+
   @ValidateNested()
   @Type(() => CreateLocationDto)
   location: CreateLocationDto;
@@ -82,10 +94,7 @@ export class CreateInspectionDto {
   // ===== Bloques opcionales (dependen del flujo seleccionado) =====
 
   // Si usas este "construction" como contenedor general, déjalo opcional:
-  @ValidateNested()
-  @Type(() => CreateConstructionDto)
-  @IsOptional()
-  construction?: CreateConstructionDto;
+ 
 
   @ValidateNested()
   @Type(() => CreateLandUseDto)
@@ -136,12 +145,9 @@ export class CreateInspectionDto {
   // ZMT
   @ValidateNested()
   @Type(() => CreateConcessionDto)
-  @IsOptional()
-  concession?: CreateConcessionDto; // <-- camelCase
+  concession: CreateConcessionDto
 
   @ValidateNested({ each: true })
   @Type(() => CreateConcessionParcelDto)
-  @IsArray()
-  @IsOptional()
-  concessionParcels?: CreateConcessionParcelDto[];
+  concessionParcels: CreateConcessionParcelDto[];
 }
