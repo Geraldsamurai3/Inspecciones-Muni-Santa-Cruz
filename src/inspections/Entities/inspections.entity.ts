@@ -1,4 +1,3 @@
-// src/inspections/Entities/inspection.entity.ts
 import {
   Column,
   Entity,
@@ -136,4 +135,3 @@ reviewedAt?: Date | null;
   @JoinColumn()                          
   concession?: Concession;
 }
-

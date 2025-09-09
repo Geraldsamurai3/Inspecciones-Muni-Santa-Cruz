@@ -1,4 +1,3 @@
-// src/inspections/dto/create-inspection.dto.ts
 import {
   IsEnum,
   IsNotEmpty,
