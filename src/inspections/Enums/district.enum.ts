@@ -6,6 +6,6 @@ export enum District {
   Cartagena = 'Cartagena',
   Cuajiniquil = 'Cuajiniquil',
   Diriá = 'Diria',
-  Cabovelas = 'Cabovelas',
+  Cabovelas = 'Cabo velas',
   Tamarindo = 'Tamarindo',
 }
