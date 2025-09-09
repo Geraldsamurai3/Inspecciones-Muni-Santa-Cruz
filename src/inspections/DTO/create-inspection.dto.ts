@@ -1,4 +1,3 @@
-// src/inspections/dto/create-inspection.dto.ts
 import {
   IsEnum,
   IsNotEmpty,
@@ -27,6 +26,7 @@ import { CreateWorkReceiptDto } from './create-work-receipts.dto'; // verifica n
 import { CreateLocationDto } from './create-location.dto';
 import { CreateConcessionDto } from './create-concession.dto';
 import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
+import { InspectionStatus } from '../Enums/inspection-status.enum';
 
 /** ===== Helpers locales para transformar ===== */
 function parseToDateString(value: any): string | undefined {
@@ -104,7 +104,14 @@ export class CreateInspectionDto {
   })
   inspectorIds?: number[];
 
+
+  @IsOptional()
+  @IsString()
+  dependency?: string;
+
   
+  // Allow frontend strings like "Persona Fisica" / "PERSONA FISICA" etc. and map them
+  @Transform(({ value }) => mapApplicantToEnum(value))
   @IsEnum(ApplicantType)
   @IsOptional()
   applicantType?: ApplicantType;
@@ -119,7 +126,8 @@ status?: InspectionStatus;
 
   @ValidateNested()
   @Type(() => CreateConstructionDto)
-  construction: CreateConstructionDto;
+  @IsOptional()
+  construction?: CreateConstructionDto;
 
   @ValidateNested()
   @Type(() => CreateLocationDto)
@@ -129,10 +137,7 @@ status?: InspectionStatus;
   // ===== Bloques opcionales (dependen del flujo seleccionado) =====
 
   // Si usas este "construction" como contenedor general, déjalo opcional:
-  @ValidateNested()
-  @Type(() => CreateConstructionDto)
-  @IsOptional()
-  construction?: CreateConstructionDto;
+ 
 
   @ValidateNested()
   @Type(() => CreateLandUseDto)
@@ -185,9 +190,11 @@ status?: InspectionStatus;
   // ZMT
   @ValidateNested()
   @Type(() => CreateConcessionDto)
-  concession: CreateConcessionDto
+  @IsOptional()
+  concession?: CreateConcessionDto
 
   @ValidateNested({ each: true })
   @Type(() => CreateConcessionParcelDto)
-  concessionParcels: CreateConcessionParcelDto[];
+  @IsOptional()
+  concessionParcels?: CreateConcessionParcelDto[];
 }
