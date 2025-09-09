@@ -54,4 +54,9 @@ export class User {
    @ManyToMany(() => Inspection, (inspection) => inspection.inspectors)
   inspections: Inspection[];
 
+  // Método para devolver datos seguros sin campos sensibles
+  toSafeObject() {
+    const { passwordHash, resetToken, resetTokenExpires, isBlocked, ...safeData } = this;
+    return safeData;
+  }
 }

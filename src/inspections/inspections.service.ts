@@ -34,14 +34,19 @@ export class InspectionService {
   }
 
 
-  async create(dto: CreateInspectionDto): Promise<Inspection> {
-    const inspectors = dto.inspectorIds ? await this.resolveInspectors(dto.inspectorIds) : [];
-    const inspectionData = { ...dto };
-    delete inspectionData.inspectorIds;
-    const inspection = this.inspectionRepo.create({ ...inspectionData, inspectors });
-    return this.inspectionRepo.save(inspection);
-  }
 
+async create(dto: CreateInspectionDto): Promise<Inspection> {
+  // Fuerza el overload correcto (entidad, no array)
+  const inspection = this.inspectionRepo.create(
+    dto as unknown as DeepPartial<Inspection>
+  );
+
+  // Estado inicial SIEMPRE "Nuevo" + sin marca de revisión
+  inspection.status = InspectionStatus.NEW;
+  inspection.reviewedAt = null;
+
+  return this.inspectionRepo.save(inspection);
+}
   async findAll(): Promise<Inspection[]> {
     return this.inspectionRepo.find({
       relations: [
@@ -61,9 +66,11 @@ export class InspectionService {
         'inspectors',
       ],
     });
+
+    return this.sanitizeInspections(inspections);
   }
 
-  async findOne(id: number): Promise<Inspection> {
+  async findOne(id: number): Promise<any> {
     const inspection = await this.inspectionRepo.findOne({
       where: { id },
       relations: [
@@ -88,7 +95,7 @@ export class InspectionService {
       throw new NotFoundException(`Inspection with ID ${id} not found`);
     }
 
-    return inspection;
+    return this.sanitizeInspection(inspection);
   }
 
   async update(id: number, dto: UpdateInspectionDto): Promise<Inspection> {

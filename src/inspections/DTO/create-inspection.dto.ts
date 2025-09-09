@@ -29,21 +29,41 @@ import { CreateConcessionDto } from './create-concession.dto';
 import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
 
 /** ===== Helpers locales para transformar ===== */
-function parseDMY(value: any): Date | undefined {
+function parseToDateString(value: any): string | undefined {
   if (value == null || value === '') return undefined;
-  if (value instanceof Date) return value;
-
+  
   const s = String(value).trim();
-  // dd-mm-yyyy
-  const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if (m) {
-    const [, dd, MM, yyyy] = m;
-    const d = new Date(`${yyyy}-${MM}-${dd}T00:00:00.000Z`);
-    if (!Number.isNaN(d.getTime())) return d;
+  
+  // Si viene en formato ISO (del frontend): "2025-09-09T00:00:00.000Z"
+  const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+  if (isoMatch) {
+    const [, yyyy, MM, dd] = isoMatch;
+    return `${yyyy}-${MM}-${dd}`;
   }
-  // fallback
-  const d2 = new Date(s);
-  return Number.isNaN(d2.getTime()) ? undefined : d2;
+  
+  // dd-mm-yyyy -> yyyy-mm-dd
+  const dmyMatch = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (dmyMatch) {
+    const [, dd, MM, yyyy] = dmyMatch;
+    return `${yyyy}-${MM}-${dd}`;
+  }
+  
+  // yyyy-mm-dd (ya está en el formato correcto)
+  const ymdMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (ymdMatch) {
+    return ymdMatch[0];
+  }
+  
+  // Fallback: intentar parsear como fecha y extraer componentes
+  const date = new Date(s);
+  if (!Number.isNaN(date.getTime())) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  return undefined;
 }
 
 function mapApplicantToEnum(v: any): ApplicantType | undefined {
@@ -52,32 +72,59 @@ function mapApplicantToEnum(v: any): ApplicantType | undefined {
   if (s.includes('FISICA')) return ApplicantType.INDIVIDUAL;
   if (s.includes('JURID')) return ApplicantType.COMPANY;
   if (s.includes('ANON')) return ApplicantType.ANONYMOUS;
-  return undefined;
+  // Fallback to anonymous to avoid validation failures when frontend sends
+  // unexpected variants (e.g. missing accents or slightly different casing).
+  return ApplicantType.ANONYMOUS;
 }
 
 /** ===== DTO principal ===== */
 export class CreateInspectionDto {
-  @Transform(({ value }) => parseDMY(value))
-  @IsDate()
-  inspectionDate: Date;
+  // Accept a variety of date formats from the frontend and convert to YYYY-MM-DD string
+  @Transform(({ value }) => parseToDateString(value))
+  @IsOptional()
+  @IsString()
+  inspectionDate?: string;
 
+  // Ensure procedureNumber is treated as a string even if the frontend sends a number
+  @Transform(({ value }) => {
+    if (value == null) return undefined;
+    const s = String(value).trim();
+    return s === '' ? undefined : s;
+  })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  procedureNumber: string;
+  procedureNumber?: string;
 
-  @IsArray()
-  @IsNumber({}, { each: true })
+ @IsArray()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value.map(id => parseInt(id, 10));
+    return [];
+  })
   inspectorIds?: number[];
 
-  @Transform(({ value }) => mapApplicantToEnum(value))
+  
   @IsEnum(ApplicantType)
-  applicantType: ApplicantType;
+  @IsOptional()
+  applicantType?: ApplicantType;
 
-  // Ubicación (requerida)
+
+//Newly added field for inspection status
+@IsOptional()
+@IsEnum(InspectionStatus)
+status?: InspectionStatus;
+
+
+
+  @ValidateNested()
+  @Type(() => CreateConstructionDto)
+  construction: CreateConstructionDto;
+
   @ValidateNested()
   @Type(() => CreateLocationDto)
-  location: CreateLocationDto;
+  @IsOptional()
+  location?: CreateLocationDto;
 
   // ===== Bloques opcionales (dependen del flujo seleccionado) =====
 
@@ -126,22 +173,21 @@ export class CreateInspectionDto {
   @ValidateIf(o => o.applicantType === ApplicantType.INDIVIDUAL)
   @ValidateNested()
   @Type(() => CreateIndividualRequestDto)
-  individualRequest: CreateIndividualRequestDto;
+  @IsOptional()
+  individualRequest?: CreateIndividualRequestDto;
 
   @ValidateIf(o => o.applicantType === ApplicantType.COMPANY)
   @ValidateNested()
-  @Type(() => CreateLegalEntityRequestDto)
-  legalEntityRequest: CreateLegalEntityRequestDto;
+  @Type(() => CreateLegalEntityRequestDto) 
+  @IsOptional()
+  legalEntityRequest?: CreateLegalEntityRequestDto;
 
   // ZMT
   @ValidateNested()
   @Type(() => CreateConcessionDto)
-  @IsOptional()
-  concession?: CreateConcessionDto; // <-- camelCase
+  concession: CreateConcessionDto
 
   @ValidateNested({ each: true })
   @Type(() => CreateConcessionParcelDto)
-  @IsArray()
-  @IsOptional()
-  concessionParcels?: CreateConcessionParcelDto[];
+  concessionParcels: CreateConcessionParcelDto[];
 }
