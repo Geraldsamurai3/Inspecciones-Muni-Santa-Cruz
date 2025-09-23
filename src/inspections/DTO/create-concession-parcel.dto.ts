@@ -4,8 +4,10 @@ import {
   IsNumberString,
   IsEnum,
   IsBoolean,
-  IsArray
+  IsArray,
+  IsOptional
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { MojonType } from '../Enums/mojon-type.enum';
 
 export class CreateConcessionParcelDto {
@@ -15,6 +17,10 @@ export class CreateConcessionParcelDto {
   @IsString() @IsNotEmpty()
   planNumber: string;
 
+  @Transform(({ value }) => {
+    if (value == null || value === '') return '';
+    return String(value);
+  })
   @IsNumberString()
   area: string;  // se transformará a number en el service
 
@@ -33,11 +39,13 @@ export class CreateConcessionParcelDto {
   @IsString() @IsNotEmpty()
   topography: string;
 
-   @IsString()
-  topographyOther: string;
+  @IsOptional()
+  @IsString()
+  topographyOther?: string;
 
- @IsArray()
-  fenceTypes: string[];
+  @IsOptional()
+  @IsArray()
+  fenceTypes?: string[];
 
   @IsBoolean()
   fencesInvadePublic: boolean;
@@ -45,15 +53,18 @@ export class CreateConcessionParcelDto {
   @IsBoolean()
   roadHasPublicAccess: boolean;
 
-   @IsString()
-  roadDescription: string;
+  @IsOptional()
+  @IsString()
+  roadDescription?: string;
 
-   @IsString()
-  roadLimitations: string;
+  @IsOptional()
+  @IsString()
+  roadLimitations?: string;
 
   @IsBoolean()
   roadMatchesPlan: boolean;
 
-   @IsString()
-  rightOfWayWidth: string;
+  @IsOptional()
+  @IsString()
+  rightOfWayWidth?: string;
 }
