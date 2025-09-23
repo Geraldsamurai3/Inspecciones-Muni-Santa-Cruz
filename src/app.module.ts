@@ -3,6 +3,7 @@ import { Module }                   from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule }            from '@nestjs/typeorm';
 import { EventEmitterModule }       from '@nestjs/event-emitter';
+import { ScheduleModule }           from '@nestjs/schedule';
 import { AppController }            from './app.controller';
 import { AppService }               from './app.service';
 import { AuthModule }               from './auth/auth.module';
@@ -45,6 +46,9 @@ import { WorkInspectionReportsModule } from './SpecialInspection/Modules/work-in
 
     // Event Emitter global
     EventEmitterModule.forRoot(),
+
+    // Schedule Module para tareas cron
+    ScheduleModule.forRoot(),
 
     // Módulos de la aplicación
     AuthModule,

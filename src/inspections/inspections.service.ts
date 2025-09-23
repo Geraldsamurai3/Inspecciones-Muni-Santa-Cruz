@@ -36,22 +36,48 @@ export class InspectionService {
     return users;
   }
 
+  // Métodos privados para sanitizar datos sensibles de los inspectores
+  private sanitizeInspection(inspection: Inspection): any {
+    if (!inspection) return inspection;
+    
+    const sanitized = { ...inspection };
+    if (sanitized.inspectors) {
+      sanitized.inspectors = sanitized.inspectors.map((inspector: any) => inspector.toSafeObject());
+    }
+    
+    return sanitized;
+  }
+
+  private sanitizeInspections(inspections: Inspection[]): any[] {
+    return inspections.map(inspection => this.sanitizeInspection(inspection));
+  }
 
 
-async create(dto: CreateInspectionDto): Promise<Inspection> {
+
+async create(dto: CreateInspectionDto): Promise<any> {
+  // Resolver inspectorIds a entidades User
+  const inspectors = await this.resolveInspectors(dto.inspectorIds);
+
   // Fuerza el overload correcto (entidad, no array)
   const inspection = this.inspectionRepo.create(
     dto as unknown as DeepPartial<Inspection>
   );
 
+  // Asignar inspectores resueltos
+  inspection.inspectors = inspectors;
+
   // Estado inicial SIEMPRE "Nuevo" + sin marca de revisión
   inspection.status = InspectionStatus.NEW;
   inspection.reviewedAt = null;
 
-  return this.inspectionRepo.save(inspection);
+  const saved = await this.inspectionRepo.save(inspection);
+  
+  // Cargar la inspección completa con relaciones para sanitizar
+  const fullInspection = await this.findOne(saved.id);
+  return fullInspection;
 }
-  async findAll(): Promise<Inspection[]> {
-    return this.inspectionRepo.find({
+  async findAll(): Promise<any[]> {
+    const inspections = await this.inspectionRepo.find({
       relations: [
         'individualRequest',
         'legalEntityRequest',
@@ -69,9 +95,11 @@ async create(dto: CreateInspectionDto): Promise<Inspection> {
         'inspectors',
       ],
     });
+
+    return this.sanitizeInspections(inspections);
   }
 
-  async findOne(id: number): Promise<Inspection> {
+  async findOne(id: number): Promise<any> {
     const inspection = await this.inspectionRepo.findOne({
       where: { id },
       relations: [
@@ -96,7 +124,7 @@ async create(dto: CreateInspectionDto): Promise<Inspection> {
       throw new NotFoundException(`Inspection with ID ${id} not found`);
     }
 
-    return inspection;
+    return this.sanitizeInspection(inspection);
   }
 
  async update(id: number, dto: UpdateInspectionDto): Promise<Inspection> {
