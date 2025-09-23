@@ -66,7 +66,6 @@ reviewedAt?: Date | null;
 
 
 
-
   @OneToOne(() => IndividualRequest, { cascade: true, nullable: true })
   @JoinColumn()
   individualRequest?: IndividualRequest;

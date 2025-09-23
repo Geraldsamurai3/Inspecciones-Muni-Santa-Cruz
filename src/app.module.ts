@@ -11,6 +11,15 @@ import { CloudinaryModule }         from './cloudinary/cloudinary.module';
 import { EmailModule }              from './email/email.module';
 import { DashboardModule }          from './dashboard/dashboard.module';
 import { InspectionsModule } from './inspections/inspections.module';
+import { WorkAntiquityAttentionsModule } from './SpecialInspection/Modules/work-antiquity-attentions.module';
+import { ConstructionPermitCancellationReportsModule } from './SpecialInspection/Modules/construction-permit-cancellation-reports.module';
+import { PropertyXxxVerificationsModule } from './SpecialInspection/Modules/property-xxx-verifications.module';
+import { LiquorLicenseComplaintsModule } from './SpecialInspection/Modules/liquor-license-complaints.module';
+import { FarmInspectionRequestsModule } from './SpecialInspection/Modules/farm-inspection-requests.module';
+import { ClosureInspectionReportsModule } from './SpecialInspection/Modules/closure-inspection-reports.module';
+import { CfiaResignationAttentionsModule } from './SpecialInspection/Modules/cfia-resignation-attentions.module';
+import { LandUseAttentionsModule } from './SpecialInspection/Modules/land-use-attentions.module';
+import { WorkInspectionReportsModule } from './SpecialInspection/Modules/work-inspection-reports.module';
 
 @Module({ 
   imports: [
@@ -44,6 +53,18 @@ import { InspectionsModule } from './inspections/inspections.module';
     CloudinaryModule,
     EmailModule,
     DashboardModule,
+    WorkAntiquityAttentionsModule,
+    ConstructionPermitCancellationReportsModule,
+    PropertyXxxVerificationsModule,
+    LiquorLicenseComplaintsModule,
+    FarmInspectionRequestsModule,
+    ClosureInspectionReportsModule,
+    CfiaResignationAttentionsModule,
+    LandUseAttentionsModule,
+     WorkInspectionReportsModule
+     
+    
+
    
   ],
   controllers: [AppController],
