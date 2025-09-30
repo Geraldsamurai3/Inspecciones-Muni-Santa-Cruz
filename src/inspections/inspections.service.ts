@@ -160,15 +160,19 @@ async create(dto: CreateInspectionDto): Promise<any> {
   return this.inspectionRepo.save(inspection);
 }
 
-@Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'America/Costa_Rica' })
+@Cron('0 0 */5 * * *', { timeZone: 'America/Costa_Rica' })
 async archiveReviewedOlderThan7Days() {
+  console.log('🕐 Ejecutando cron para archivar inspecciones revisadas hace más de 7 días...');
+  
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
 
-  await this.inspectionRepo.update(
+  const result = await this.inspectionRepo.update(
     { status: InspectionStatus.REVIEWED, reviewedAt: LessThan(cutoff) },
     { status: InspectionStatus.ARCHIVED },
   );
+
+  console.log(`✅ Cron completado. ${result.affected || 0} inspecciones archivadas.`);
 }
 
 
