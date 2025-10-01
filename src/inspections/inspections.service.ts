@@ -11,8 +11,7 @@ import { UpdateInspectionDto } from './DTO/update-inspection.dto';
 import { CreateInspectionDto } from './DTO/create-inspection.dto';
 import { User } from 'src/users/entities/user.entity';
 import { InspectionStatus } from './Enums/inspection-status.enum';
-import { Cron, CronExpression } from '@nestjs/schedule';
-
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class InspectionService {
@@ -93,6 +92,9 @@ async create(dto: CreateInspectionDto): Promise<any> {
         'concession',
         'concession.parcels',
         'inspectors',
+        'collection',
+        'revenuePatent',
+        'workClosure',
       ],
     });
 
@@ -117,6 +119,9 @@ async create(dto: CreateInspectionDto): Promise<any> {
         'concession',
         'concession.parcels',
         'inspectors',
+        'collection',
+        'revenuePatent',
+        'workClosure',
       ],
     });
 

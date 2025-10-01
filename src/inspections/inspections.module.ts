@@ -19,6 +19,9 @@ import { Concession } from './Entities/zmt.consession.enity';
 import { ConcessionParcel } from './Entities/zmt.consession.parcels.entity';
 import { User } from 'src/users/entities/user.entity';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Nueva importación
+import { Collection } from './Entities/collection.entity';
+import { RevenuePatent } from './Entities/revenue-patent.entity';
+import { WorkClosure } from './Entities/work-closure.entity';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Nueva imp
       Concession,
       ConcessionParcel,
       User,
+      Collection,
+      RevenuePatent,
+      WorkClosure,
     ]),
     CloudinaryModule, 
   ],

@@ -7,7 +7,8 @@ import {
   ManyToMany,
   JoinTable,
   UpdateDateColumn,
-  CreateDateColumn
+  CreateDateColumn,
+  
 } from 'typeorm';
 import { ApplicantType } from '../Enums/applicant.enum';
 import { IndividualRequest } from './individual-request.entity';
@@ -24,6 +25,9 @@ import { Location } from './location.entity';
 import { Concession } from './zmt.consession.enity';
 import { User } from 'src/users/entities/user.entity';
 import { InspectionStatus } from '../Enums/inspection-status.enum';
+import { Collection } from './collection.entity';
+import { RevenuePatent } from './revenue-patent.entity';
+import { WorkClosure } from './work-closure.entity';
 @Entity('inspections')
 export class Inspection {
   @PrimaryGeneratedColumn()
@@ -133,4 +137,17 @@ reviewedAt?: Date | null;
   })
   @JoinColumn()                          
   concession?: Concession;
+
+  @OneToOne(() => Collection, { cascade: true, nullable: true })
+  @JoinColumn()
+  collection?: Collection;
+
+  @OneToOne(() => RevenuePatent, { cascade: true, nullable: true })
+  @JoinColumn()
+  revenuePatent?: RevenuePatent;
+
+  @OneToOne(() => WorkClosure, { cascade: true, nullable: true })
+  @JoinColumn()
+  workClosure?: WorkClosure;
+
 }

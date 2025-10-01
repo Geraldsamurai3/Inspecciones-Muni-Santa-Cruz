@@ -27,6 +27,9 @@ import { CreateLocationDto } from './create-location.dto';
 import { CreateConcessionDto } from './create-concession.dto';
 import { CreateConcessionParcelDto } from './create-concession-parcel.dto';
 import { InspectionStatus } from '../Enums/inspection-status.enum';
+import { CreateCollectionDto } from './create-collection.dto';
+import { CreateRevenuePatentDto } from './create-revenue-patent.dto';
+import { CreateWorkClosureDto } from './create-work-closure.dto';
 
 /** ===== Helpers locales para transformar ===== */
 function parseToDateString(value: any): string | undefined {
@@ -197,4 +200,20 @@ status?: InspectionStatus;
   @Type(() => CreateConcessionParcelDto)
   @IsOptional()
   concessionParcels?: CreateConcessionParcelDto[];
+
+
+@ValidateNested()
+  @Type(() => CreateCollectionDto)
+  @IsOptional()
+  collection?: CreateCollectionDto;
+
+@ValidateNested()
+  @Type(() => CreateRevenuePatentDto)
+  @IsOptional()
+  revenuePatent?: CreateRevenuePatentDto;
+
+  @ValidateNested()
+  @Type(() => CreateWorkClosureDto)
+  @IsOptional()
+  workClosure?: CreateWorkClosureDto;
 }
