@@ -6,6 +6,7 @@ import {
   DetailedStats, 
   InspectorStats,
   DependencyStatsResponse,
+  InspectorPerformanceResponse,
   TimePeriod
 } from './stats.service';
 
@@ -79,6 +80,19 @@ export class StatsController {
     @Query('endDate') endDate?: string,
   ): Promise<DependencyStatsResponse> {
     return this.statsService.getDependencyStats(
+      period || '7days',
+      startDate,
+      endDate
+    );
+  }
+
+  @Get('inspector-performance')
+  async getInspectorPerformance(
+    @Query('period') period?: TimePeriod,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<InspectorPerformanceResponse> {
+    return this.statsService.getInspectorPerformance(
       period || '7days',
       startDate,
       endDate

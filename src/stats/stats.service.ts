@@ -77,6 +77,34 @@ export interface DependencyStatsResponse {
   byDependency: DependencyStats[];
 }
 
+export interface InspectorDependencyCount {
+  dependency: string;
+  count: number;
+}
+
+export interface InspectorPerformance {
+  inspectorId: number;
+  inspectorName: string;
+  totalInspections: number;
+  byStatus: {
+    nuevo: number;
+    enProceso: number;
+    revisado: number;
+    archivado: number;
+  };
+  byDependency: InspectorDependencyCount[];
+  completionRate: number;
+  thisMonth: number;
+  avgPerMonth: number;
+}
+
+export interface InspectorPerformanceResponse {
+  period: string;
+  startDate: string;
+  endDate: string;
+  inspectors: InspectorPerformance[];
+}
+
 export type TimePeriod = '7days' | '1week' | '15days' | '1month' | 'custom';
 
 @Injectable()
@@ -368,5 +396,106 @@ export class StatsService {
     }
 
     return { start, end, periodLabel };
+  }
+
+  async getInspectorPerformance(
+    period: TimePeriod = '7days',
+    startDate?: string,
+    endDate?: string
+  ): Promise<InspectorPerformanceResponse> {
+    const { start, end, periodLabel } = this.getDateRange(period, startDate, endDate);
+
+    // Query para obtener estadísticas completas por inspector incluyendo dependencias
+    const results = await this.inspectionRepo.query(`
+      SELECT 
+        u.id as inspectorId,
+        CONCAT(u.firstName, ' ', u.lastName) as inspectorName,
+        COUNT(DISTINCT i.id) as totalInspections,
+        SUM(CASE WHEN i.status = 'Nuevo' THEN 1 ELSE 0 END) as nuevo,
+        SUM(CASE WHEN i.status = 'En proceso' THEN 1 ELSE 0 END) as enProceso,
+        SUM(CASE WHEN i.status = 'Revisado' THEN 1 ELSE 0 END) as revisado,
+        SUM(CASE WHEN i.status = 'Archivado' THEN 1 ELSE 0 END) as archivado,
+        SUM(CASE 
+          WHEN DATE_FORMAT(i.createdAt, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+          THEN 1 ELSE 0 
+        END) as thisMonth
+      FROM user u
+      LEFT JOIN inspection_users iu ON u.id = iu.user_id
+      LEFT JOIN inspections i ON iu.inspection_id = i.id
+      WHERE i.createdAt >= ? AND i.createdAt <= ?
+      GROUP BY u.id, u.firstName, u.lastName
+      HAVING totalInspections > 0
+      ORDER BY totalInspections DESC
+    `, [start, end]);
+
+    // Para cada inspector, obtener el conteo por dependencia
+    const inspectors: InspectorPerformance[] = await Promise.all(
+      results.map(async (row: any) => {
+        const dependencyResults = await this.inspectionRepo.query(`
+          SELECT 
+            CASE
+              WHEN i.mayorOfficeId IS NOT NULL THEN 'Alcaldía'
+              WHEN i.constructionId IS NOT NULL THEN 'Construcción'
+              WHEN i.pcCancellationId IS NOT NULL THEN 'Cancelación PC'
+              WHEN i.workReceiptId IS NOT NULL THEN 'Recepción de Obras'
+              WHEN i.generalInspectionId IS NOT NULL THEN 'Inspección General'
+              WHEN i.taxProcedureId IS NOT NULL THEN 'Cobros/Procedimientos Tributarios'
+              WHEN i.antiquityId IS NOT NULL THEN 'Bienes Inmuebles/Antigüedad'
+              WHEN i.locationId IS NOT NULL THEN 'Ubicación'
+              WHEN i.landUseId IS NOT NULL THEN 'Uso de Suelo'
+              WHEN i.concessionId IS NOT NULL THEN 'Concesión ZMT'
+              ELSE 'Sin Clasificar'
+            END as dependency,
+            COUNT(*) as count
+          FROM inspections i
+          INNER JOIN inspection_users iu ON i.id = iu.inspection_id
+          WHERE iu.user_id = ?
+            AND i.createdAt >= ?
+            AND i.createdAt <= ?
+          GROUP BY dependency
+          ORDER BY count DESC
+        `, [row.inspectorId, start, end]);
+
+        const byDependency: InspectorDependencyCount[] = dependencyResults.map((dep: any) => ({
+          dependency: dep.dependency,
+          count: parseInt(dep.count)
+        }));
+
+        const totalInspections = parseInt(row.totalInspections);
+        const completedInspections = parseInt(row.revisado) + parseInt(row.archivado);
+        const completionRate = totalInspections > 0 
+          ? Math.round((completedInspections / totalInspections) * 10000) / 100 
+          : 0;
+
+        // Calcular promedio mensual (basado en el período)
+        const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        const avgPerMonth = daysDiff > 0 
+          ? Math.round((totalInspections / daysDiff) * 30 * 100) / 100 
+          : 0;
+
+        return {
+          inspectorId: row.inspectorId,
+          inspectorName: row.inspectorName,
+          totalInspections,
+          byStatus: {
+            nuevo: parseInt(row.nuevo),
+            enProceso: parseInt(row.enProceso),
+            revisado: parseInt(row.revisado),
+            archivado: parseInt(row.archivado),
+          },
+          byDependency,
+          completionRate,
+          thisMonth: parseInt(row.thisMonth),
+          avgPerMonth,
+        };
+      })
+    );
+
+    return {
+      period: periodLabel,
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+      inspectors,
+    };
   }
 }
