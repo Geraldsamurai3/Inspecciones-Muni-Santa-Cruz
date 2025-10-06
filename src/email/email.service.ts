@@ -3,8 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService }                            from '@nestjs/config';
 import * as nodemailer                               from 'nodemailer';
 import { join }                                     from 'path';
-
-const hbs = require('nodemailer-express-handlebars');
+import * as hbs from 'nodemailer-express-handlebars';
 
 @Injectable()
 export class EmailService {

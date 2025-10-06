@@ -4,9 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { InternalServerErrorException } from '@nestjs/common';
 
 // Mock nodemailer-express-handlebars
-jest.mock('nodemailer-express-handlebars', () => {
-  return jest.fn(() => jest.fn());
-});
+jest.mock('nodemailer-express-handlebars', () => jest.fn(() => jest.fn()));
 
 describe('EmailService', () => {
   let service: EmailService;
