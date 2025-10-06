@@ -2,8 +2,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService }                            from '@nestjs/config';
 import * as nodemailer                               from 'nodemailer';
-import * as hbs from 'nodemailer-handlebars'; 
 import { join }                                     from 'path';
+
+const hbs = require('nodemailer-express-handlebars');
 
 @Injectable()
 export class EmailService {
@@ -33,7 +34,7 @@ export class EmailService {
       'compile',
       hbs({
         viewEngine: {
-          extName: '.hbs',
+          extname: '.hbs',
           layoutsDir: join(templatesRoot, 'layouts'),
           partialsDir: join(templatesRoot, 'partials'),
           defaultLayout: false,

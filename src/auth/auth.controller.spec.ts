@@ -1,3 +1,7 @@
+jest.mock('nodemailer-express-handlebars', () => {
+  return jest.fn(() => jest.fn());
+});
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
