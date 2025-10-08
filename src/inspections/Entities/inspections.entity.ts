@@ -28,6 +28,7 @@ import { InspectionStatus } from '../Enums/inspection-status.enum';
 import { Collection } from './collection.entity';
 import { RevenuePatent } from './revenue-patent.entity';
 import { WorkClosure } from './work-closure.entity';
+import { PlatformAndService } from './platforms-and-ervices.entity';
 @Entity('inspections')
 export class Inspection {
   @PrimaryGeneratedColumn()
@@ -149,5 +150,9 @@ reviewedAt?: Date | null;
   @OneToOne(() => WorkClosure, { cascade: true, nullable: true })
   @JoinColumn()
   workClosure?: WorkClosure;
+
+  @OneToOne(() => PlatformAndService, { cascade: true, nullable: true })
+  @JoinColumn()
+  platformAndService?: PlatformAndService;
 
 }

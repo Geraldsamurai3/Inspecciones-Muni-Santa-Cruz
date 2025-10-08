@@ -22,6 +22,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Nueva imp
 import { Collection } from './Entities/collection.entity';
 import { RevenuePatent } from './Entities/revenue-patent.entity';
 import { WorkClosure } from './Entities/work-closure.entity';
+import { PlatformAndService } from './Entities/platforms-and-ervices.entity';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { WorkClosure } from './Entities/work-closure.entity';
       Collection,
       RevenuePatent,
       WorkClosure,
+      PlatformAndService,
     ]),
     CloudinaryModule, 
   ],
