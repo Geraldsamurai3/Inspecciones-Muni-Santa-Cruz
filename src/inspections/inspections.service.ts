@@ -109,6 +109,7 @@ async create(dto: CreateInspectionDto): Promise<any> {
         'collection',
         'revenuePatent',
         'workClosure',
+        'platformAndService',
       ],
     });
 
@@ -136,6 +137,7 @@ async create(dto: CreateInspectionDto): Promise<any> {
         'collection',
         'revenuePatent',
         'workClosure',
+        'platformAndService',
       ],
     });
 

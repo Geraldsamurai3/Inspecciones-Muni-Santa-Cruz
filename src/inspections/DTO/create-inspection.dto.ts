@@ -30,6 +30,7 @@ import { InspectionStatus } from '../Enums/inspection-status.enum';
 import { CreateCollectionDto } from './create-collection.dto';
 import { CreateRevenuePatentDto } from './create-revenue-patent.dto';
 import { CreateWorkClosureDto } from './create-work-closure.dto';
+import { CreatePlatformAndServiceDto } from './create-platform-and-service.dto';
 
 /** ===== Helpers locales para transformar ===== */
 function parseToDateString(value: any): string | undefined {
@@ -216,4 +217,9 @@ status?: InspectionStatus;
   @Type(() => CreateWorkClosureDto)
   @IsOptional()
   workClosure?: CreateWorkClosureDto;
+
+  @ValidateNested()
+  @Type(() => CreatePlatformAndServiceDto)
+  @IsOptional()
+  platformAndService?: CreatePlatformAndServiceDto;
 }
