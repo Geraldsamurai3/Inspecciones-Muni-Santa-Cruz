@@ -57,9 +57,23 @@ async create(dto: CreateInspectionDto): Promise<any> {
   // Resolver inspectorIds a entidades User
   const inspectors = await this.resolveInspectors(dto.inspectorIds);
 
+  // ✨ MANEJO ESPECIAL para ZMT: Si vienen concessionParcels separadas,
+  // las anidamos dentro de concession.parcels para que cascade funcione
+  const dtoToCreate = { ...dto } as any;
+  
+  if (dtoToCreate.concession && dtoToCreate.concessionParcels) {
+    // Anidar parcelas dentro de concession para cascade
+    dtoToCreate.concession = {
+      ...dtoToCreate.concession,
+      parcels: dtoToCreate.concessionParcels
+    };
+    // Eliminar concessionParcels del nivel raíz
+    delete dtoToCreate.concessionParcels;
+  }
+
   // Fuerza el overload correcto (entidad, no array)
   const inspection = this.inspectionRepo.create(
-    dto as unknown as DeepPartial<Inspection>
+    dtoToCreate as unknown as DeepPartial<Inspection>
   );
 
   // Asignar inspectores resueltos
