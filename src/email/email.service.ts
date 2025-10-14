@@ -12,8 +12,8 @@ export class EmailService {
   constructor(private readonly config: ConfigService) {
     this.transporter = nodemailer.createTransport({
   host: this.config.get<string>('SMTP_HOST'),
-  port: this.config.get<number>('SMTP_PORT'),           // e.g. 465 o 587
-  secure: this.config.get<number>('SMTP_PORT') === 465,  // true solo en 465
+  port: this.config.get<number>('SMTP_PORT'),           
+  secure: this.config.get<number>('SMTP_PORT') === 465,  
   auth: {
     user: this.config.get<string>('SMTP_USER'),
     pass: this.config.get<string>('SMTP_PASS'),
@@ -22,11 +22,9 @@ export class EmailService {
   ...(this.config.get<number>('SMTP_PORT') === 587
     ? { requireTLS: true }
     : {}),
-  // opcional, relaja verificación de certificado auto‑firmado
   tls: { rejectUnauthorized: false },
 });
 
-    // Configurar Handlebars como motor de plantillas
     const templatesRoot = join(process.cwd(), 'src', 'email', 'templates');
 
     this.transporter.use(
