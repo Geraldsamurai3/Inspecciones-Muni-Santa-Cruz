@@ -268,4 +268,214 @@ export class DashboardService {
       },
     };
   }
+
+  /**
+   * Obtener estadísticas de dependencias
+   * Muestra las subdependencias de construcción como dependencias independientes
+   */
+  async getDependenciesStats() {
+    // Cargar todas las inspecciones con todas las relaciones
+    const inspections = await this.inspectionRepository.find({
+      relations: [
+        'construction',
+        'landUse',
+        'antiquity',
+        'pcCancellation',
+        'generalInspection',
+        'workReceipt',
+        'location',
+        'taxProcedure',
+        'mayorOffice',
+        'concession',
+        'collection',
+        'revenuePatent',
+        'workClosure',
+        'platformAndService',
+      ],
+    });
+
+    const total = inspections.length;
+
+    // Contar cada dependencia (subdependencias de construcción mostradas como independientes)
+    const stats = {
+      totalInspecciones: total,
+      dependencias: {
+        construccion: {
+          total: inspections.filter(i => i.construction).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.construction).length / total) * 100) : 0,
+          subdependencias: {
+            usoSuelo: {
+              total: inspections.filter(i => i.landUse).length,
+              porcentaje: total > 0 ? Math.round((inspections.filter(i => i.landUse).length / total) * 100) : 0,
+            },
+            antiguedad: {
+              total: inspections.filter(i => i.antiquity).length,
+              porcentaje: total > 0 ? Math.round((inspections.filter(i => i.antiquity).length / total) * 100) : 0,
+            },
+            anulacionPC: {
+              total: inspections.filter(i => i.pcCancellation).length,
+              porcentaje: total > 0 ? Math.round((inspections.filter(i => i.pcCancellation).length / total) * 100) : 0,
+            },
+            inspeccionGeneral: {
+              total: inspections.filter(i => i.generalInspection).length,
+              porcentaje: total > 0 ? Math.round((inspections.filter(i => i.generalInspection).length / total) * 100) : 0,
+            },
+            recibidoObra: {
+              total: inspections.filter(i => i.workReceipt).length,
+              porcentaje: total > 0 ? Math.round((inspections.filter(i => i.workReceipt).length / total) * 100) : 0,
+            },
+          },
+        },
+        tramiteFiscal: {
+          total: inspections.filter(i => i.taxProcedure).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.taxProcedure).length / total) * 100) : 0,
+        },
+        alcaldia: {
+          total: inspections.filter(i => i.mayorOffice).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.mayorOffice).length / total) * 100) : 0,
+        },
+        concesionZMT: {
+          total: inspections.filter(i => i.concession).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.concession).length / total) * 100) : 0,
+        },
+        cobranza: {
+          total: inspections.filter(i => i.collection).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.collection).length / total) * 100) : 0,
+        },
+        patenteRenta: {
+          total: inspections.filter(i => i.revenuePatent).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.revenuePatent).length / total) * 100) : 0,
+        },
+        cierreObra: {
+          total: inspections.filter(i => i.workClosure).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.workClosure).length / total) * 100) : 0,
+        },
+        plataformaServicio: {
+          total: inspections.filter(i => i.platformAndService).length,
+          porcentaje: total > 0 ? Math.round((inspections.filter(i => i.platformAndService).length / total) * 100) : 0,
+        },
+      },
+    };
+
+    return stats;
+  }
+
+  /**
+   * Obtener estadísticas simplificadas de dependencias
+   * Vista plana de todas las dependencias (ideal para gráficos)
+   */
+  async getDependenciesStatsFlat() {
+    const inspections = await this.inspectionRepository.find({
+      relations: [
+        'construction',
+        'landUse',
+        'antiquity',
+        'pcCancellation',
+        'generalInspection',
+        'workReceipt',
+        'location',
+        'taxProcedure',
+        'mayorOffice',
+        'concession',
+        'collection',
+        'revenuePatent',
+        'workClosure',
+        'platformAndService',
+      ],
+    });
+
+    const total = inspections.length;
+
+    // Array plano de dependencias (subdependencias como ítems independientes)
+    return [
+      {
+        nombre: 'Construcción',
+        icono: '🏗️',
+        total: inspections.filter(i => i.construction).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.construction).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Uso de Suelo',
+        icono: '📐',
+        total: inspections.filter(i => i.landUse).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.landUse).length / total) * 100) : 0,
+        esSubdependencia: true,
+        padre: 'Construcción',
+      },
+      {
+        nombre: 'Antigüedad',
+        icono: '⏰',
+        total: inspections.filter(i => i.antiquity).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.antiquity).length / total) * 100) : 0,
+        esSubdependencia: true,
+        padre: 'Construcción',
+      },
+      {
+        nombre: 'Anulación de PC',
+        icono: '🚫',
+        total: inspections.filter(i => i.pcCancellation).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.pcCancellation).length / total) * 100) : 0,
+        esSubdependencia: true,
+        padre: 'Construcción',
+      },
+      {
+        nombre: 'Inspección General',
+        icono: '🔍',
+        total: inspections.filter(i => i.generalInspection).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.generalInspection).length / total) * 100) : 0,
+        esSubdependencia: true,
+        padre: 'Construcción',
+      },
+      {
+        nombre: 'Recibido de Obra',
+        icono: '📋',
+        total: inspections.filter(i => i.workReceipt).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.workReceipt).length / total) * 100) : 0,
+        esSubdependencia: true,
+        padre: 'Construcción',
+      },
+      {
+        nombre: 'Trámite Fiscal',
+        icono: '💰',
+        total: inspections.filter(i => i.taxProcedure).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.taxProcedure).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Alcaldía',
+        icono: '🏛️',
+        total: inspections.filter(i => i.mayorOffice).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.mayorOffice).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Concesión ZMT',
+        icono: '🏖️',
+        total: inspections.filter(i => i.concession).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.concession).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Cobranza',
+        icono: '💵',
+        total: inspections.filter(i => i.collection).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.collection).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Patente de Renta',
+        icono: '🏪',
+        total: inspections.filter(i => i.revenuePatent).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.revenuePatent).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Cierre de Obra',
+        icono: '🔒',
+        total: inspections.filter(i => i.workClosure).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.workClosure).length / total) * 100) : 0,
+      },
+      {
+        nombre: 'Plataforma y Servicio',
+        icono: '🏢',
+        total: inspections.filter(i => i.platformAndService).length,
+        porcentaje: total > 0 ? Math.round((inspections.filter(i => i.platformAndService).length / total) * 100) : 0,
+      },
+    ];
+  }
 }

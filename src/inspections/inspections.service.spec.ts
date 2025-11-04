@@ -133,6 +133,7 @@ describe('InspectionService', () => {
       const result = await service.findAll();
 
       expect(inspectionRepo.find).toHaveBeenCalledWith({
+        where: { deletedAt: expect.anything() },
         relations: expect.arrayContaining(['inspectors', 'construction', 'generalInspection']),
       });
       expect(result).toHaveLength(1);
@@ -145,6 +146,20 @@ describe('InspectionService', () => {
       const result = await service.findAll();
 
       expect(result).toEqual([]);
+    });
+
+    it('should exclude trashed inspections', async () => {
+      const trashedInspection = {
+        ...mockInspection,
+        status: InspectionStatus.TRASHED,
+        deletedAt: new Date(),
+      };
+
+      inspectionRepo.find.mockResolvedValue([mockInspection]);
+
+      const result = await service.findAll();
+
+      expect(result).not.toContainEqual(expect.objectContaining({ status: InspectionStatus.TRASHED }));
     });
   });
 
@@ -232,6 +247,17 @@ describe('InspectionService', () => {
         'El estado "Archivado" lo asigna automáticamente el sistema.'
       );
     });
+
+    it('should throw BadRequestException when trying to change status to TRASHED', async () => {
+      const updateDto = { status: InspectionStatus.TRASHED };
+
+      inspectionRepo.findOne.mockResolvedValue(mockInspection);
+
+      await expect(service.update(1, updateDto)).rejects.toThrow(BadRequestException);
+      await expect(service.update(1, updateDto)).rejects.toThrow(
+        'Usa el endpoint /inspections/:id/trash para mover a la papelera.'
+      );
+    });
   });
 
   describe('archiveReviewedOlderThan7Days', () => {
@@ -280,4 +306,131 @@ describe('InspectionService', () => {
       await expect(service.remove(999)).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('findTrashed', () => {
+    it('should return only trashed inspections', async () => {
+      const trashedInspection = {
+        ...mockInspection,
+        status: InspectionStatus.TRASHED,
+        deletedAt: new Date(),
+      };
+
+      inspectionRepo.find.mockResolvedValue([trashedInspection]);
+
+      const result = await service.findTrashed();
+
+      expect(inspectionRepo.find).toHaveBeenCalledWith({
+        where: { status: InspectionStatus.TRASHED },
+        relations: expect.arrayContaining(['inspectors', 'construction']),
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0].status).toBe(InspectionStatus.TRASHED);
+    });
+
+    it('should return empty array when no trashed inspections exist', async () => {
+      inspectionRepo.find.mockResolvedValue([]);
+
+      const result = await service.findTrashed();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('moveToTrash', () => {
+    it('should move inspection to trash', async () => {
+      inspectionRepo.findOne.mockResolvedValue(mockInspection);
+      inspectionRepo.save.mockResolvedValue({
+        ...mockInspection,
+        status: InspectionStatus.TRASHED,
+        deletedAt: new Date(),
+      });
+
+      const result = await service.moveToTrash(1);
+
+      expect(inspectionRepo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(inspectionRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: InspectionStatus.TRASHED,
+          deletedAt: expect.any(Date),
+        })
+      );
+      expect(result.message).toBe('Inspección movida a la papelera');
+      expect(result.id).toBe(1);
+      expect(result.deletedAt).toBeDefined();
+    });
+
+    it('should throw NotFoundException when inspection not found', async () => {
+      inspectionRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.moveToTrash(999)).rejects.toThrow(NotFoundException);
+      await expect(service.moveToTrash(999)).rejects.toThrow('Inspection with ID 999 not found');
+    });
+
+    it('should throw BadRequestException when inspection already in trash', async () => {
+      const trashedInspection = {
+        ...mockInspection,
+        status: InspectionStatus.TRASHED,
+        deletedAt: new Date(),
+      };
+
+      inspectionRepo.findOne.mockResolvedValue(trashedInspection);
+
+      await expect(service.moveToTrash(1)).rejects.toThrow(BadRequestException);
+      await expect(service.moveToTrash(1)).rejects.toThrow('La inspección ya está en la papelera');
+    });
+  });
+
+  describe('restoreFromTrash', () => {
+    it('should restore inspection from trash', async () => {
+      const trashedInspection = {
+        ...mockInspection,
+        status: InspectionStatus.TRASHED,
+        deletedAt: new Date(),
+      };
+
+      inspectionRepo.findOne.mockResolvedValue(trashedInspection);
+      inspectionRepo.save.mockResolvedValue({
+        ...trashedInspection,
+        status: InspectionStatus.NEW,
+        deletedAt: null,
+      });
+
+      const result = await service.restoreFromTrash(1);
+
+      expect(inspectionRepo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(inspectionRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: InspectionStatus.NEW,
+          deletedAt: null,
+        })
+      );
+      expect(result.message).toBe('Inspección restaurada desde la papelera');
+      expect(result.id).toBe(1);
+      expect(result.status).toBe(InspectionStatus.NEW);
+    });
+
+    it('should throw NotFoundException when inspection not found', async () => {
+      inspectionRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.restoreFromTrash(999)).rejects.toThrow(NotFoundException);
+      await expect(service.restoreFromTrash(999)).rejects.toThrow('Inspection with ID 999 not found');
+    });
+
+    it('should throw BadRequestException when inspection not in trash', async () => {
+      const activeInspection = {
+        ...mockInspection,
+        status: InspectionStatus.NEW, // Estado activo, no en papelera
+        deletedAt: null,
+      };
+
+      inspectionRepo.findOne.mockResolvedValue(activeInspection);
+
+      await expect(service.restoreFromTrash(1)).rejects.toThrow(BadRequestException);
+      await expect(service.restoreFromTrash(1)).rejects.toThrow('La inspección no está en la papelera');
+    });
+  });
+
+  // NOTA: Tests de deletePermanently() eliminados
+  // No se implementa eliminación permanente - solo soft delete
+  // Los datos siempre se mantienen en la base de datos para auditoría
 });

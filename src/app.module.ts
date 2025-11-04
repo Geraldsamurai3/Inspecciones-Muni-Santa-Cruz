@@ -13,6 +13,7 @@ import { EmailModule }              from './email/email.module';
 import { DashboardModule }          from './dashboard/dashboard.module';
 import { StatsModule }              from './stats/stats.module';
 import { InspectionsModule } from './inspections/inspections.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({ 
   imports: [
@@ -49,7 +50,8 @@ import { InspectionsModule } from './inspections/inspections.module';
     CloudinaryModule,
     EmailModule,
     DashboardModule,
-    StatsModule
+    StatsModule,
+    ReportsModule
      
     
 

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, LessThan, Repository } from 'typeorm';
+import { DeepPartial, IsNull, LessThan, Repository } from 'typeorm';
 import { Inspection } from './Entities/inspections.entity';
 import { In } from 'typeorm';
 import { UpdateInspectionDto } from './DTO/update-inspection.dto';
@@ -91,6 +91,36 @@ async create(dto: CreateInspectionDto): Promise<any> {
 }
   async findAll(): Promise<any[]> {
     const inspections = await this.inspectionRepo.find({
+      where: { deletedAt: IsNull() }, // Excluir inspecciones en papelera
+      relations: [
+        'individualRequest',
+        'legalEntityRequest',
+        'construction',
+        'pcCancellation',
+        'workReceipt',
+        'generalInspection',
+        'taxProcedure',
+        'mayorOffice',
+        'antiquity',
+        'location',
+        'landUse',
+        'concession',
+        'concession.parcels',
+        'inspectors',
+        'collection',
+        'revenuePatent',
+        'workClosure',
+        'platformAndService',
+      ],
+    });
+
+    return this.sanitizeInspections(inspections);
+  }
+
+  // NUEVO: Obtener solo las inspecciones en papelera
+  async findTrashed(): Promise<any[]> {
+    const inspections = await this.inspectionRepo.find({
+      where: { status: InspectionStatus.TRASHED },
       relations: [
         'individualRequest',
         'legalEntityRequest',
@@ -162,6 +192,13 @@ async create(dto: CreateInspectionDto): Promise<any> {
       );
     }
 
+    // Prevenir cambio directo a TRASHED (debe usar endpoint específico)
+    if (status === InspectionStatus.TRASHED) {
+      throw new BadRequestException(
+        'Usa el endpoint /inspections/:id/trash para mover a la papelera.'
+      );
+    }
+
     // si pasa a Revisado, sellamos la fecha
     if (status === InspectionStatus.REVIEWED && !inspection.reviewedAt) {
       inspection.reviewedAt = new Date();
@@ -180,6 +217,59 @@ async create(dto: CreateInspectionDto): Promise<any> {
 
   return this.inspectionRepo.save(inspection);
 }
+
+  // NUEVO: Mover a papelera (soft delete)
+  async moveToTrash(id: number): Promise<any> {
+    const inspection = await this.inspectionRepo.findOne({ where: { id } });
+    
+    if (!inspection) {
+      throw new NotFoundException(`Inspection with ID ${id} not found`);
+    }
+
+    if (inspection.status === InspectionStatus.TRASHED) {
+      throw new BadRequestException('La inspección ya está en la papelera');
+    }
+
+    inspection.status = InspectionStatus.TRASHED;
+    inspection.deletedAt = new Date();
+
+    await this.inspectionRepo.save(inspection);
+
+    return {
+      message: 'Inspección movida a la papelera',
+      id: inspection.id,
+      deletedAt: inspection.deletedAt
+    };
+  }
+
+  // NUEVO: Restaurar de papelera
+  async restoreFromTrash(id: number): Promise<any> {
+    const inspection = await this.inspectionRepo.findOne({ where: { id } });
+    
+    if (!inspection) {
+      throw new NotFoundException(`Inspection with ID ${id} not found`);
+    }
+
+    if (inspection.status !== InspectionStatus.TRASHED) {
+      throw new BadRequestException('La inspección no está en la papelera');
+    }
+
+    inspection.status = InspectionStatus.NEW; // Restaurar como "Nuevo"
+    inspection.deletedAt = null;
+
+    await this.inspectionRepo.save(inspection);
+
+    return {
+      message: 'Inspección restaurada desde la papelera',
+      id: inspection.id,
+      status: inspection.status
+    };
+  }
+
+  // NOTA: No se implementa eliminación permanente de datos
+  // Los datos siempre se mantienen en la base de datos para auditoría e historial
+  // El campo 'deletedAt' registra cuándo se movió a papelera
+  // Si necesitas "eliminar" una inspección, usa moveToTrash() que hace soft delete
 
 @Cron('0 0 */5 * * *', { timeZone: 'America/Costa_Rica' })
 async archiveReviewedOlderThan7Days() {

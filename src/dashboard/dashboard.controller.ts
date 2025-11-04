@@ -67,4 +67,24 @@ export class DashboardController {
 
     return this.dashboardService.getStatsByPeriod(start, end);
   }
+
+  /**
+   * GET /dashboard/stats/dependencies
+   * Obtener estadísticas de dependencias
+   * Muestra las subdependencias de construcción como dependencias independientes
+   */
+  @Get('stats/dependencies')
+  async getDependenciesStats() {
+    return this.dashboardService.getDependenciesStats();
+  }
+
+  /**
+   * GET /dashboard/stats/dependencies/flat
+   * Obtener estadísticas de dependencias en formato plano (ideal para gráficos)
+   * Incluye subdependencias como ítems independientes con iconos
+   */
+  @Get('stats/dependencies/flat')
+  async getDependenciesStatsFlat() {
+    return this.dashboardService.getDependenciesStatsFlat();
+  }
 }

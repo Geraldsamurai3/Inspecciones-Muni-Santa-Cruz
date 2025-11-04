@@ -1,5 +1,5 @@
 // src/auth/jwt.strategy.ts
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy }  from 'passport-jwt'
 import { ConfigService }         from '@nestjs/config'
@@ -21,7 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     // payload.sub contiene el id de usuario
     const user = await this.usersService.findOne(payload.sub)
-    // quitamos la contraseña antes de inyectar en req.user
+    
+    // CRÍTICO: Verificar que el usuario no esté bloqueado
+    if (user.isBlocked) {
+      throw new UnauthorizedException('Tu cuenta está bloqueada. Contacta al administrador.');
+    }
+    
+    // quitamos campos sensibles antes de inyectar en req.user
     const { passwordHash, resetToken, resetTokenExpires, ...safe } = user
     return safe
   }

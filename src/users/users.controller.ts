@@ -114,8 +114,19 @@ async forgotPassword(@Body('email') email: string) {
     if (!token || !newPassword) {
       throw new BadRequestException('Token y nueva contraseña son requeridos');
     }
+
+    // Validar longitud mínima de la contraseña
+    if (newPassword.length < 6) {
+      throw new BadRequestException('La contraseña debe tener al menos 6 caracteres');
+    }
+
     await this.usersService.resetPassword(token, newPassword);
-    return { message: 'Contraseña actualizada correctamente' };
+    
+    // IMPORTANTE: Después de cambiar la contraseña, el usuario debe hacer login nuevamente
+    return { 
+      message: 'Contraseña actualizada correctamente. Por favor, inicia sesión con tu nueva contraseña.',
+      requiresLogin: true 
+    };
   }
 
   @UseGuards(JwtAuthGuard)

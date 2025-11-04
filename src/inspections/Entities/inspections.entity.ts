@@ -86,6 +86,10 @@ status: InspectionStatus;
 @Column({ type: 'timestamp', nullable: true })
 reviewedAt?: Date | null;
 
+// Momento en que se movió a la papelera (soft delete)
+@Column({ type: 'timestamp', nullable: true })
+deletedAt?: Date | null;
+
 
 
   @OneToOne(() => IndividualRequest, { cascade: true, nullable: true })

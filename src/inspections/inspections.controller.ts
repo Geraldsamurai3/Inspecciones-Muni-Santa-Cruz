@@ -51,6 +51,12 @@ export class InspectionController {
     return this.service.findAll();
   }
 
+  // NUEVO: Obtener inspecciones en papelera
+  @Get('trash/list')
+  findTrashed() {
+    return this.service.findTrashed();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
@@ -84,11 +90,26 @@ export class InspectionController {
     return this.service.update(id, { status } as UpdateInspectionDto);
   }
 
+  // NUEVO: Mover a papelera
+  @Patch(':id/trash')
+  moveToTrash(@Param('id', ParseIntPipe) id: number) {
+    return this.service.moveToTrash(id);
+  }
+
+  // NUEVO: Restaurar de papelera
+  @Patch(':id/restore')
+  restoreFromTrash(@Param('id', ParseIntPipe) id: number) {
+    return this.service.restoreFromTrash(id);
+  }
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }
+
+  // NOTA: No se implementa endpoint de eliminación permanente
+  // Los datos siempre se mantienen para auditoría e historial
+  // Para "eliminar" inspecciones usa: PATCH /inspections/:id/trash
 
   // Nuevo endpoint para subir fotos
   @Post(':id/photos')

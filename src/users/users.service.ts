@@ -103,9 +103,18 @@ export class UsersService {
       throw new BadRequestException('Token inválido o expirado');
     }
 
+    // Verificar que el usuario no esté bloqueado
+    if (user.isBlocked) {
+      throw new BadRequestException('La cuenta está bloqueada. No se puede restablecer la contraseña.');
+    }
+
+    // Cambiar la contraseña
     user.passwordHash = await bcrypt.hash(newPassword, 10);
+    
+    // CRÍTICO: Limpiar los campos de reset para invalidar el token
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;
+    
     await this.repo.save(user);
   }
 

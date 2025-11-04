@@ -196,12 +196,19 @@ describe('UsersController', () => {
       const result = await controller.resetPassword(token, newPassword);
 
       expect(usersService.resetPassword).toHaveBeenCalledWith(token, newPassword);
-      expect(result).toEqual({ message: 'Contraseña actualizada correctamente' });
+      expect(result).toEqual({ 
+        message: 'Contraseña actualizada correctamente. Por favor, inicia sesión con tu nueva contraseña.',
+        requiresLogin: true 
+      });
     });
 
     it('should throw BadRequestException if token or password is missing', async () => {
       await expect(controller.resetPassword('', 'password')).rejects.toThrow(BadRequestException);
       await expect(controller.resetPassword('token', '')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if password is too short', async () => {
+      await expect(controller.resetPassword('valid-token', '12345')).rejects.toThrow(BadRequestException);
     });
   });
 

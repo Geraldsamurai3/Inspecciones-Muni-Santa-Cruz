@@ -3,4 +3,5 @@ export enum InspectionStatus {
   IN_PROGRESS= 'En proceso',
   REVIEWED   = 'Revisado',
   ARCHIVED   = 'Archivado',
+  TRASHED    = 'Papelera',
 }
