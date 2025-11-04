@@ -23,6 +23,10 @@ export class EmailService {
     ? { requireTLS: true }
     : {}),
   tls: { rejectUnauthorized: false },
+  // Timeouts para evitar esperas largas
+  connectionTimeout: 10000, // 10 segundos
+  greetingTimeout: 10000,   // 10 segundos
+  socketTimeout: 15000,     // 15 segundos
 });
 
     const templatesRoot = join(process.cwd(), 'src', 'email', 'templates');
@@ -70,6 +74,8 @@ async sendResetPasswordEmail(
   lastName?: string,
 ) {
   try {
+    console.log('📧 Intentando enviar email a:', to);
+    
     const from = this.config.get<string>('EMAIL_FROM');
     if (!from) throw new InternalServerErrorException('EMAIL_FROM no está configurado');
 
@@ -80,6 +86,13 @@ async sendResetPasswordEmail(
     const url = new URL('/admin/reset-password', frontend);
     url.searchParams.set('token', token);
     const resetLink = url.toString();
+
+    console.log('📧 Configuración SMTP:', {
+      host: this.config.get<string>('SMTP_HOST'),
+      port: this.config.get<number>('SMTP_PORT'),
+      user: this.config.get<string>('SMTP_USER'),
+      from,
+    });
 
     const info = await this.transporter.sendMail({
       from,
@@ -94,8 +107,18 @@ async sendResetPasswordEmail(
         year: new Date().getFullYear(),
       },
     }as any, );
+    
+    console.log('✅ Email enviado exitosamente. MessageId:', (info as any).messageId);
     return { messageId: (info as any).messageId };
   } catch (err: any) {
+    console.error('❌ Error completo al enviar email:', {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      command: err.command,
+      response: err.response,
+      responseCode: err.responseCode,
+    });
     throw new InternalServerErrorException(
       'Error enviando email de restablecimiento: ' + err.message,
     );

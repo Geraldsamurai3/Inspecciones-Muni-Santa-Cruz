@@ -95,8 +95,13 @@ async forgotPassword(@Body('email') email: string) {
     );
     return { message: 'Email de restablecimiento enviado' };
   } catch (error) {
-    console.error('Error sending reset email:', error);
-    throw new BadRequestException('Error al enviar el email. Inténtalo más tarde.');
+    console.error('❌ Error detallado al enviar email:', error);
+    console.error('Error name:', error?.name);
+    console.error('Error message:', error?.message);
+    console.error('Error code:', error?.code);
+    throw new BadRequestException(
+      `Error al enviar el email: ${error?.message || 'Inténtalo más tarde'}`,
+    );
   }
 }
 
