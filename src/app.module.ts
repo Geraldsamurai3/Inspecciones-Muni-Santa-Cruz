@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule }            from '@nestjs/typeorm';
 import { EventEmitterModule }       from '@nestjs/event-emitter';
 import { ScheduleModule }           from '@nestjs/schedule';
+import { APP_GUARD }                from '@nestjs/core';
 import { AppController }            from './app.controller';
 import { AppService }               from './app.service';
 import { AuthModule }               from './auth/auth.module';
@@ -14,6 +15,7 @@ import { DashboardModule }          from './dashboard/dashboard.module';
 import { StatsModule }              from './stats/stats.module';
 import { InspectionsModule } from './inspections/inspections.module';
 import { ReportsModule } from './reports/reports.module';
+import { JwtAuthGuard }             from './auth/guards/jwt-auth.guard';
 
 @Module({ 
   imports: [
@@ -60,7 +62,11 @@ import { ReportsModule } from './reports/reports.module';
   controllers: [AppController],
   providers: [
     AppService,
-   
+    // Guard global: aplica JwtAuthGuard a todas las rutas excepto las marcadas con @Public()
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

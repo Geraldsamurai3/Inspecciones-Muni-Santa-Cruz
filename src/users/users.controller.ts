@@ -27,16 +27,14 @@ export class UsersController {
     private readonly emailService: EmailService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Req() req: any) {
-    // req.user ya es el user “safe” que devolvió JwtStrategy.validate()
+    // req.user ya es el user "safe" que devolvió JwtStrategy.validate()
     return req.user
   }
 
@@ -50,7 +48,6 @@ export class UsersController {
     return this.usersService.create(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -59,7 +56,6 @@ export class UsersController {
     return this.usersService.update(id, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
@@ -129,7 +125,6 @@ async forgotPassword(@Body('email') email: string) {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/block')
   async blockUser(
     @Param('id', ParseIntPipe) id: number,
