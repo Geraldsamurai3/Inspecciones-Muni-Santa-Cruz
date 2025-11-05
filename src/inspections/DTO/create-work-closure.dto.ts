@@ -46,8 +46,8 @@ export class CreateWorkClosureDto {
   @IsOptional() @IsString() @MaxLength(500)
   observations?: string;
 
-  // Photos
+  // Photos (debe coincidir con el nombre en la entidad)
   @IsOptional() @IsArray()
   @IsString({ each: true })
-  photoUrls?: string[];
+  photos?: string[];
 }

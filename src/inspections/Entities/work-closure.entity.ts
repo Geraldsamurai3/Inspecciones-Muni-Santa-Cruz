@@ -45,5 +45,5 @@ export class WorkClosure {
 
   // Photos (array of URL/paths)
   @Column({ type: 'simple-json', nullable: true })
-  photoUrls?: string[];              // Fotos
+  photos?: string[];              // Fotos
 }

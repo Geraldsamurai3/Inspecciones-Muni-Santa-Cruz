@@ -1,0 +1,71 @@
+🚀 VARIABLES QUE DEBES CONFIGURAR EN RAILWAY
+================================================
+
+Ve a Railway Dashboard → Tu Proyecto → Variables
+Y agrega EXACTAMENTE estas variables:
+
+DATABASE
+--------
+DB_HOST=(Railway te da esto automáticamente)
+DB_PORT=(Railway te da esto automáticamente)
+DB_USERNAME=root
+DB_PASSWORD=(Railway te da esto automáticamente)
+DB_DATABASE=railway
+
+TYPEORM
+-------
+TYPEORM_SYNC=false
+
+SERVER
+------
+PORT=3000
+FRONTEND_URL=https://inspecciones-front-santa-cruz.vercel.app
+
+JWT
+---
+JWT_SECRET=tu_secreto_jwt
+JWT_EXPIRATION=1h
+
+CLOUDINARY
+----------
+CLOUDINARY_CLOUD_NAME=da84etlav
+CLOUDINARY_API_KEY=862873356192438
+CLOUDINARY_API_SECRET=SZbXZ9WE87lgZ6dhqXujWLBFAtE
+
+SMTP (GMAIL) - EL PROBLEMA ESTÁ AQUÍ
+-------------------------------------
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=andreylanza3@gmail.com
+SMTP_PASS=grygaogfvclj ltbe
+EMAIL_FROM=Inspecciones <no-reply@midominio.com>
+
+⚠️ IMPORTANTE: La contraseña debe estar SIN ESPACIOS
+   Correcto:   grygaogfvcljltbe
+   Incorrecto: gryg oagf vclj ltbe
+
+================================================
+⚠️ SI GMAIL SIGUE FALLANDO (Connection Timeout)
+================================================
+
+Gmail bloquea conexiones desde servidores cloud como Railway.
+
+SOLUCIÓN ALTERNATIVA: Usar SendGrid (100% compatible con Railway)
+------------------------------------------------------------------
+
+1. Crea cuenta gratis en: https://sendgrid.com/
+2. Ve a Settings → API Keys → Create API Key
+3. Copia la API Key (empieza con SG.)
+4. En Railway, REEMPLAZA las variables SMTP con:
+
+   SMTP_HOST=smtp.sendgrid.net
+   SMTP_PORT=587
+   SMTP_USER=apikey
+   SMTP_PASS=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   EMAIL_FROM=Inspecciones <noreply@tudominio.com>
+
+5. Railway reiniciará automáticamente
+6. ¡Funcionará inmediatamente!
+
+SendGrid te da 100 emails GRATIS por día, más que suficiente.

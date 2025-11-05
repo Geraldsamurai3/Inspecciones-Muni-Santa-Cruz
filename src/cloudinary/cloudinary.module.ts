@@ -6,6 +6,7 @@ import { memoryStorage } from 'multer';
 
 import { CloudinaryService } from './cloudinary.service';
 import { CloudinaryProvider } from './cloudinary.provider';
+import { CloudinaryController } from './cloudinary.controller';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CloudinaryProvider } from './cloudinary.provider';
       storage: memoryStorage(),
     }),
   ],
+  controllers: [CloudinaryController],
   providers: [CloudinaryProvider, CloudinaryService],
   exports: [CloudinaryService],
 })
